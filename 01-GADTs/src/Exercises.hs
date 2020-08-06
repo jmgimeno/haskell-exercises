@@ -17,20 +17,25 @@ instance Countable Bool where count x = if x then 1 else 0
 -- things.
 
 data CountableList where
-  -- ...
+  CountNil :: CountableList
+  CountCons :: Countable a => a -> CountableList -> CountableList
 
 
 -- | b. Write a function that takes the sum of all members of a 'CountableList'
 -- once they have been 'count'ed.
 
 countList :: CountableList -> Int
-countList = error "Implement me!"
+countList CountNil         = 0
+countList (CountCons c cs) = count c + countList cs 
 
 
 -- | c. Write a function that removes all elements whose count is 0.
 
 dropZero :: CountableList -> CountableList
-dropZero = error "Implement me!"
+dropZero CountNil = CountNil
+dropZero (CountCons c cs)
+  | count c == 0 = dropZero cs
+  | otherwise    = CountCons c (dropZero cs)
 
 
 -- | d. Can we write a function that removes all the things in the list of type
@@ -39,7 +44,8 @@ dropZero = error "Implement me!"
 filterInts :: CountableList -> CountableList
 filterInts = error "Contemplate me!"
 
-
+-- No, we can't because the only thing we can do with the elements in the
+-- list is count them
 
 
 
@@ -48,29 +54,32 @@ filterInts = error "Contemplate me!"
 -- | a. Write a list that can take /any/ type, without any constraints.
 
 data AnyList where
-  -- ...
+  AnyNil :: AnyList
+  AnyCons :: a -> AnyList -> AnyList
 
 -- | b. How many of the following functions can we implement for an 'AnyList'?
 
 reverseAnyList :: AnyList -> AnyList
-reverseAnyList = undefined
+reverseAnyList l = go l AnyNil
+                   where go AnyNil r         = r
+                         go (AnyCons a as) r = go as (AnyCons a r)
 
 filterAnyList :: (a -> Bool) -> AnyList -> AnyList
-filterAnyList = undefined
+filterAnyList = undefined -- impossible caller chooses a -> Bool
 
 lengthAnyList :: AnyList -> Int
-lengthAnyList = undefined
+lengthAnyList AnyNil         = 0
+lengthAnyList (AnyCons _ as) = 1 + lengthAnyList as
 
 foldAnyList :: Monoid m => AnyList -> m
-foldAnyList = undefined
-
+foldAnyList = undefined -- impossible (no way to relate a with m)
+ 
 isEmptyAnyList :: AnyList -> Bool
-isEmptyAnyList = undefined
+isEmptyAnyList AnyNil = True
+isEmptyAnyList _      = False
 
 instance Show AnyList where
-  show = error "What about me?"
-
-
+  show = error "What about me?" -- cannot show a's, only counts
 
 
 
