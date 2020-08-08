@@ -215,18 +215,24 @@ getInt (IntBox int _) = int
 -- pattern-match:
 
 getInt' :: MysteryBox String -> Int
-getInt' _doSomeCleverPatternMatching = error "Return that value"
+getInt' (StringBox _ (IntBox int _)) = int 
 
 -- | b. Write the following function. Again, don't overthink it!
 
 countLayers :: MysteryBox a -> Int
-countLayers = error "Implement me"
+countLayers EmptyBox        = 0
+countLayers (IntBox _ _)    = 1
+countLayers (StringBox _ _) = 2
+countLayers (BoolBox _ _)   = 3 
 
 -- | c. Try to implement a function that removes one layer of "Box". For
 -- example, this should turn a BoolBox into a StringBox, and so on. What gets
 -- in our way? What would its type be?
 
+-- Cannot define it because the type of b is chosen by the caller.
 
+removeLayer :: MysteryBox a -> MysteryBox b
+removeLayer = undefined
 
 
 
