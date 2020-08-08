@@ -93,6 +93,11 @@ data TransformableTo output where
     ->  input
     -> TransformableTo output
 
+-- Added Show instance to 'view' the results
+
+instance Show a => Show (TransformableTo a) where
+  show (TransformWith f a) = show (f a)
+
 -- | ... and the following values of this GADT:
 
 transformable1 :: TransformableTo String
@@ -101,15 +106,32 @@ transformable1 = TransformWith show 2.5
 transformable2 :: TransformableTo String
 transformable2 = TransformWith (uncurry (++)) ("Hello,", " world!")
 
--- | a. Which type variable is existential inside 'TransformableTo'? What is
--- the only thing we can do to it?
+-- | a. Which type variable is existential inside 'TransformableTo'?
 
--- | b. Could we write an 'Eq' instance for 'TransformableTo'? What would we be
--- able to check?
+-- input
 
--- | c. Could we write a 'Functor' instance for 'TransformableTo'? If so, write
--- it. If not, why not?
+-- What is the only thing we can do to it?
 
+-- apply input -> output to input
+
+-- | b. Could we write an 'Eq' instance for 'TransformableTo'? 
+
+-- Yes
+
+-- What would we be able to check?
+
+-- If the results of applying the function to input are equal
+
+instance Eq a => Eq (TransformableTo a) where
+  TransformWith f a == TransformWith f' a' = f a == f' a' 
+
+-- | c. Could we write a 'Functor' instance for 'TransformableTo'? 
+
+-- Yes
+-- If so, write it. If not, why not?
+
+instance Functor TransformableTo where
+  fmap g (TransformWith f a) = TransformWith (g . f) a
 
 
 
