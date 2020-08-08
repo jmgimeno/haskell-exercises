@@ -229,12 +229,22 @@ countLayers (BoolBox _ _)   = 3
 -- example, this should turn a BoolBox into a StringBox, and so on. What gets
 -- in our way? What would its type be?
 
--- Cannot define it because the type of b is chosen by the caller.
+-- You can't write a function to do this because we have no way of figuring out
+-- the type of the layer below. However, if you're willing to be a bit
+-- sneaky... (hat-tip @LiamGoodacre):
 
-removeLayer :: MysteryBox a -> MysteryBox b
-removeLayer = undefined
+data Layer a b where -- We can use a GADT to encode the layers...
+  Int'    :: Layer Int ()
+  String' :: Layer String Int
+  Bool'   :: Layer Bool String
 
+-- And now we can write this function:
+unpeel :: Layer a b -> MysteryBox a -> MysteryBox b
+unpeel Int'    (IntBox    _ xs) = xs
+unpeel String' (StringBox _ xs) = xs
+unpeel Bool'   (BoolBox   _ xs) = xs
 
+-- It's definitely not perfect, but it's a pretty good go!
 
 {- SIX -}
 
