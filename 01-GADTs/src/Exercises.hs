@@ -143,17 +143,53 @@ instance Functor TransformableTo where
 data EqPair where
   EqPair :: Eq a => a -> a -> EqPair
 
+{-
+*GADTs Exercises GADTs> t =  EqPair (+1) (*2)
+
+<interactive>:18:6: error:
+    • No instance for (Eq (Integer -> Integer))
+        arising from a use of ‘EqPair’
+        (maybe you haven't applied a function to enough arguments?)
+    • In the expression: EqPair (+ 1) (* 2)
+      In an equation for ‘t’: t = EqPair (+ 1) (* 2)
+-}
+
 -- | a. There's one (maybe two) useful function to write for 'EqPair'; what is
 -- it?
+
+equals :: EqPair -> Bool
+equals (EqPair x y) = x == y
+
+notEquals :: EqPair -> Bool
+notEquals (EqPair x y) = x /= y
 
 -- | b. How could we change the type so that @a@ is not existential? (Don't
 -- overthink it!)
 
+-- Adding it as a type parameter
+
+data EqPair' a where
+  EqPair' :: Eq a => a -> a -> EqPair' a
+
 -- | c. If we made the change that was suggested in (b), would we still need a
 -- GADT? Or could we now represent our type as an ADT?
 
+-- Yes, but we loose the Eq a constraint
 
+data EqPair'' a = EqPair'' a a
 
+{-
+This does not work !!!
+data EqPair'' a = Eq a => EqPair'' a a
+
+*GADTs Exercises GADTs> t =  EqPair'' (+1) (*2)
+
+<interactive>:19:1: error:
+    • Non type-variable argument in the constraint: Eq (a -> a)
+      (Use FlexibleContexts to permit this)
+    • When checking the inferred type
+        t :: forall a. (Eq (a -> a), Num a) => EqPair'' (a -> a)
+-}
 
 
 {- FIVE -}
