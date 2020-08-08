@@ -376,7 +376,11 @@ data Expr a where
 -- | a. Implement the following function and marvel at the typechecker:
 
 eval :: Expr a -> a
-eval = error "Implement me"
+eval (Equals x y)  = eval x == eval y
+eval (Add x y)     = eval x + eval y
+eval (If c t e)    = eval $ if eval c then t else e
+eval (IntValue x)  = x
+eval (BoolValue x) = x
 
 -- | b. Here's an "untyped" expression language. Implement a parser from this
 -- into our well-typed language. Note that (until we cover higher-rank
