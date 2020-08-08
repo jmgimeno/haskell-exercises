@@ -437,7 +437,14 @@ parse xs = case tidy xs of
 -- other constructs would we need to add? Could we still avoid 'Maybe' in the
 -- 'eval' function?
 
+-- We can steal functions from Haskell to achieve this sort of thing. When we
+-- do so, it's called a Higher-Order Abstract Syntax (or HOAS for short). This
+-- means we end up with a pretty little thing like:
 
+data MoreExpr a where
+-- ....
+  Function :: (a -> MoreExpr b) -> MoreExpr (a -> b)
+  Apply    :: MoreExpr (a -> b) -> MoreExpr a -> MoreExpr b
 
 
 
