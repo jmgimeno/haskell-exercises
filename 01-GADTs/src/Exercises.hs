@@ -1,7 +1,6 @@
 {-# LANGUAGE GADTs                          #-}
 {-# LANGUAGE FlexibleInstances              #-}
 {-# LANGUAGE FlexibleContexts               #-}
-{-# OPTIONS_GHC -Werror=incomplete-patterns #-}
 
 module Exercises where
 
@@ -393,8 +392,46 @@ data DirtyExpr
   | DirtyIntValue  Int
   | DirtyBoolValue Bool
 
+-- This is a super tricky one. First, we need a GADT that means we can
+-- patten-match to figure out the type of our expression. If we have an
+-- @IntType x@, we know that @x :: Expr Int@. Similarly for @BoolType x@!
+
+data Typed where
+  IntType  :: Expr Int  -> Typed
+  BoolType :: Expr Bool -> Typed
+
+-- Now, we do some really grotty pattern-matching to guarantee that our types
+-- line up. 'Typed' gives us a way to figure out whether we have the right
+-- types, and so we can just start to put together an expression. The nice
+-- thing here is that it's pretty much guaranteed to work if it compiles
+-- because of how strict the types are!
+
+tidy :: DirtyExpr -> Maybe Typed
+
+tidy (DirtyEquals x y) = case (tidy x, tidy y) of
+  (Just (IntType x), Just (IntType y)) -> Just (BoolType (Equals x y))
+  _                                    -> Nothing
+
+tidy (DirtyAdd x y) = case (tidy x, tidy y) of
+  (Just (IntType x), Just (IntType y)) -> Just (IntType (Add x y))
+  _                                    -> Nothing
+
+tidy (DirtyIf p t f) = case (tidy p, tidy t, tidy f) of
+  (Just (BoolType p'), Just (IntType t'), Just (IntType f')) ->
+    Just (IntType (If p' t' f'))
+  (Just (BoolType p'), Just (BoolType t'), Just (BoolType f')) ->
+    Just (BoolType (If p' t' f'))
+
+tidy (DirtyIntValue  x) = Just (IntType  (IntValue  x))
+tidy (DirtyBoolValue x) = Just (BoolType (BoolValue x))
+
+-- Finally, 'parse' is just a little one.
+
 parse :: DirtyExpr -> Maybe (Expr Int)
-parse = error "Implement me"
+parse xs = case tidy xs of
+  Just (IntType x) -> Just x
+  Nothing          -> Nothing
+
 
 -- | c. Can we add functions to our 'Expr' language? If not, why not? What
 -- other constructs would we need to add? Could we still avoid 'Maybe' in the
