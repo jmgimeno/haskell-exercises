@@ -1,4 +1,9 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs              #-}
+{-# LANGUAGE FlexibleInstances  #-}
+{-# LANGUAGE FlexibleContexts   #-}
+
+{-# OPTIONS_GHC -Wall #-}
+
 module Exercises where
 
 
@@ -263,8 +268,13 @@ exampleHList = HCons "Tom" (HCons 25 (HCons True HNil))
 -- need to pattern-match on HNil, and therefore the return type shouldn't be
 -- wrapped in a 'Maybe'!
 
+head :: HList (a,b) -> a
+head (HCons h _) = h
+
 -- | b. Currently, the tuples are nested. Can you pattern-match on something of
 -- type @HList (Int, String, Bool, ())@? Which constructor would work?
+
+-- No constructor works because there is no way to construct an HList of a four-tuple type.
 
 patternMatchMe :: HList (Int, String, Bool, ()) -> Int
 patternMatchMe = undefined
@@ -272,7 +282,7 @@ patternMatchMe = undefined
 -- | c. Can you write a function that appends one 'HList' to the end of
 -- another? What problems do you run into?
 
-
+-- No way to append types for the result.
 
 
 
@@ -287,11 +297,15 @@ data Branch left centre right
 -- /tree/. None of the variables should be existential.
 
 data HTree a where
-  -- ...
+  HEmpty :: HTree Empty
+  HBranch :: HTree left -> centre -> HTree right -> HTree (Branch left centre right)
 
 -- | b. Implement a function that deletes the left subtree. The type should be
 -- strong enough that GHC will do most of the work for you. Once you have it,
 -- try breaking the implementation - does it type-check? If not, why not?
+
+removeLeft :: HTree (Branch left centre right) -> HTree (Branch Empty centre right)
+removeLeft (HBranch _ centre right) = HBranch HEmpty centre right
 
 -- | c. Implement 'Eq' for 'HTree's. Note that you might have to write more
 -- than one to cover all possible HTrees. You might also need an extension or
@@ -299,7 +313,12 @@ data HTree a where
 -- Recursion is your friend here - you shouldn't need to add a constraint to
 -- the GADT!
 
+instance Eq (HTree Empty) where
+  _ == _ = True
 
+instance (Eq (HTree left), Eq centre, Eq (HTree right)) => Eq (HTree (Branch left centre right)) where
+  HBranch left centre right == HBranch left' centre' right'
+    = left == left' && centre == centre' && right == right' 
 
 
 
