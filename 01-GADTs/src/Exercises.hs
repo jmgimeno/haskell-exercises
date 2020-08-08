@@ -1,8 +1,7 @@
-{-# LANGUAGE GADTs              #-}
-{-# LANGUAGE FlexibleInstances  #-}
-{-# LANGUAGE FlexibleContexts   #-}
-
-{-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE GADTs                          #-}
+{-# LANGUAGE FlexibleInstances              #-}
+{-# LANGUAGE FlexibleContexts               #-}
+{-# OPTIONS_GHC -Werror=incomplete-patterns #-}
 
 module Exercises where
 
@@ -333,21 +332,29 @@ instance (Eq (HTree left), Eq centre, Eq (HTree right)) => Eq (HTree (Branch lef
 -- @
 
 data AlternatingList a b where
-  -- ...
+  ANil :: AlternatingList () ()
+  ACons :: a -> AlternatingList b a -> AlternatingList a b
 
 -- | b. Implement the following functions.
 
 getFirsts :: AlternatingList a b -> [a]
-getFirsts = error "Implement me!"
+getFirsts ANil = []
+getFirsts (ACons a bas) = a : getSeconds bas
 
 getSeconds :: AlternatingList a b -> [b]
-getSeconds = error "Implement me, too!"
+getSeconds ANil= []
+getSeconds (ACons _ abs) = getFirsts abs
 
 -- | c. One more for luck: write this one using the above two functions, and
 -- then write it such that it only does a single pass over the list.
 
 foldValues :: (Monoid a, Monoid b) => AlternatingList a b -> (a, b)
-foldValues = error "Implement me, three!"
+foldValues l = (mconcat $ getFirsts l, mconcat $ getSeconds l)
+
+foldValues' :: (Monoid a, Monoid b) => AlternatingList a b -> (a, b)
+foldValues' ANil          = (mempty, mempty)
+foldValues' (ACons a bas) = let (b', a') = foldValues' bas
+                            in (mappend a a', b')
 
 
 
