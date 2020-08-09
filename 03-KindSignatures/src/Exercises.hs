@@ -102,3 +102,4 @@ class Question10 (a :: Constraint)
 --instance Question10 (Monad m, Eq m, Show a) 
 --  m cannot be Type -> Type (for Monad) and Type (for Eq) at the same time.
 instance Question10 (Monad m, Show a)
+instance Question10 (Monad m, Eq (m a), Show a)
