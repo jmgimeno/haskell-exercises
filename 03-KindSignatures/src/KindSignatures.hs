@@ -88,7 +88,7 @@ instance OfKindTypeToType IO
   complex. I also think it's a nice one simply for the sake of documentation:
 -}
 
-class MyFavouriteBifunctor (element :: (Type -> Type -> Type))
+class MyFavouriteBifunctor (element :: Type -> Type -> Type)
 instance MyFavouriteBifunctor Either
 instance MyFavouriteBifunctor (,)
 
