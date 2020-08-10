@@ -24,21 +24,21 @@ data IntegerMonoid = Sum | Product
 -- | a. Write a newtype around 'Integer' that lets us choose which instance we
 -- want.
 
-newtype IntMonoid (m :: IntegerMonoid) = IntMonoid Integer
+newtype IntegerWith (monoid :: IntegerMonoid) = IntegerWith Integer
 
 -- | b. Write the two monoid instances for 'Integer'.
 
-instance Semigroup (IntMonoid 'Sum) where
-  (IntMonoid x) <> (IntMonoid y)= IntMonoid $ x + y
+instance Semigroup (IntegerWith 'Sum) where
+  (IntegerWith x) <> (IntegerWith y)= IntegerWith $ x + y
 
-instance Monoid (IntMonoid 'Sum) where
-  mempty = IntMonoid 0
+instance Monoid (IntegerWith 'Sum) where
+  mempty = IntegerWith 0
 
-instance Semigroup (IntMonoid 'Product) where
-  (IntMonoid x) <> (IntMonoid y)= IntMonoid $ x * y
+instance Semigroup (IntegerWith 'Product) where
+  (IntegerWith x) <> (IntegerWith y)= IntegerWith $ x * y
 
-instance Monoid (IntMonoid 'Product) where
-  mempty = IntMonoid 1
+instance Monoid (IntegerWith 'Product) where
+  mempty = IntegerWith 1
 
 -- | c. Why do we need @FlexibleInstances@ to do this?
 
