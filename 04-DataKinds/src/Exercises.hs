@@ -58,12 +58,16 @@ data Void -- No constructors!
 -- | a. If we promote this with DataKinds, can we produce any /types/ of kind
 -- 'Void'?
 
+-- No because we don't have any type constructor available for kind Void.
+
 -- | b. What are the possible type-level values of kind 'Maybe Void'?
+
+-- 'Nothing
 
 -- | c. Considering 'Maybe Void', and similar examples of kinds such as
 -- 'Either Void Bool', why do you think 'Void' might be a useful kind?
 
-
+-- To denote an impossible type.
 
 
 
