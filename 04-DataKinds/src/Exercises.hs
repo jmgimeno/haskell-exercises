@@ -1,6 +1,9 @@
 {-# LANGUAGE DataKinds      #-}
 {-# LANGUAGE GADTs          #-}
 {-# LANGUAGE KindSignatures #-}
+
+{-# LANGUAGE FlexibleInstances #-}
+
 module Exercises where
 
 import Data.Kind (Type)
@@ -21,10 +24,26 @@ data IntegerMonoid = Sum | Product
 -- | a. Write a newtype around 'Integer' that lets us choose which instance we
 -- want.
 
+newtype IntMonoid (m :: IntegerMonoid) = IntMonoid Integer
+
 -- | b. Write the two monoid instances for 'Integer'.
+
+instance Semigroup (IntMonoid 'Sum) where
+  (IntMonoid x) <> (IntMonoid y)= IntMonoid $ x + y
+
+instance Monoid (IntMonoid 'Sum) where
+  mempty = IntMonoid 0
+
+instance Semigroup (IntMonoid 'Product) where
+  (IntMonoid x) <> (IntMonoid y)= IntMonoid $ x * y
+
+instance Monoid (IntMonoid 'Product) where
+  mempty = IntMonoid 1
 
 -- | c. Why do we need @FlexibleInstances@ to do this?
 
+-- Because we are instantiating the type parameter with the
+-- IntegerMonoid tyoe
 
 
 
