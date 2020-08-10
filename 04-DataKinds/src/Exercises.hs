@@ -80,12 +80,23 @@ data Void -- No constructors!
 data Nat = Z | S Nat
 
 data StringAndIntList (stringCount :: Nat) where
-  -- ...
+  SANil        :: StringAndIntList 'Z
+  SAConsString :: String -> StringAndIntList n -> StringAndIntList ('S n)
+  SAConsInt    :: Int    -> StringAndIntList n -> StringAndIntList n
 
 -- | b. Update it to keep track of the count of strings /and/ integers.
 
+data StringAndIntList' (stringCount :: Nat) (intCount :: Nat) where
+  SANil'        :: StringAndIntList' 'Z 'Z
+  SAConsString' :: String -> StringAndIntList' n m -> StringAndIntList' ('S n) m
+  SAConsInt'    :: Int    -> StringAndIntList' n m -> StringAndIntList' n ('S m)
+
 -- | c. What would be the type of the 'head' function?
 
+head :: StringAndIntList' n m -> Maybe (Either String Int)
+head SANil'              = Nothing
+head (SAConsString' s _) = Just $ Left s
+head (SAConsInt'    i _) = Just $ Right i
 
 
 
