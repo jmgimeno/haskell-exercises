@@ -146,14 +146,22 @@ data List a = Nil | Cons a (List a)
 -- having a list of types!
 
 data HList (types :: List Type) where
-  -- HNil  :: ...
-  -- HCons :: ...
+  HNil  :: HList 'Nil
+  HCons :: t -> HList ts -> HList ('Cons t ts)
 
 -- | b. Write a well-typed, 'Maybe'-less implementation for the 'tail' function
 -- on 'HList'.
 
+tail :: HList ('Cons t ts) -> HList ts
+tail (HCons _ xs) = xs
+
 -- | c. Could we write the 'take' function? What would its type be? What would
 -- get in our way?
+
+--take :: Int -> HList ts -> ???
+--cannot express in the signature the type of the result because we have to
+--do a take but at the type level (Spoiler: type families?)
+
 
 
 
