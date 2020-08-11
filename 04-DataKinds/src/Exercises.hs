@@ -183,16 +183,29 @@ data BlogAction
 -- Remember that, by switching on @DataKinds@, we have access to a promoted
 -- version of 'Bool'!
 
+data BlogAction' (isSafe :: Bool) where
+  AddBlog'       :: BlogAction' 'True
+  DeleteBlog'    :: BlogAction' 'False
+  AddComment'    :: BlogAction' 'True
+  DeleteComment' :: BlogAction' 'False
+
 -- | b. Write a 'BlogAction' list type that requires all its members to be
 -- the same "access level": "admin" or "non-admin".
 
--- data BlogActionList (isSafe :: ???) where
---   ...
+data BlogActionList (isSafe :: Bool) where
+  BALNil  :: BlogActionList isSafe
+  BALCons :: BlogAction' isSafe -> BlogActionList isSave -> BlogActionList isSafe
 
 -- | c. Let's imagine that our requirements change, and 'DeleteComment' is now
 -- available to a third role: moderators. Could we use 'DataKinds' to introduce
 -- the three roles at the type-level, and modify our type to keep track of
 -- this?
+
+data AccessLevel = Admin | Moderator | User
+
+-- We cannot express that the delete comment is available both to moderators 
+-- and admins
+
 
 
 
