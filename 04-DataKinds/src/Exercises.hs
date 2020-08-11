@@ -247,7 +247,9 @@ length' (VCons _ v) = SS (length' v)
 
 data Proxy a = Proxy
 
--- No, because there is a Proxy for any type of kind Type
+-- No - @Proxy :: Proxy Int@ and @Proxy :: Proxy String@ have the same
+-- value-level representation, so we don't have the necessary one-to-one
+-- mapping.
 
 
 
