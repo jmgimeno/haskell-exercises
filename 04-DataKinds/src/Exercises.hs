@@ -9,7 +9,7 @@ module Exercises where
 
 import Data.Kind (Type, Constraint)
 import Data.Function ((&))
-
+import Prelude hiding ((!!))
 
 
 
@@ -373,11 +373,20 @@ data Vector (n :: Nat) (a :: Type) where
 -- into Z and S cases. That's all the hint you need :)
 
 data SmallerThan (limit :: Nat) where
-  -- ...
+  -- Z is smaller than the successor of any number.
+  STZ :: SmallerThan ('S n)
+  -- The successor of a number smaller than X is a number smaller than the
+  -- successor of X.
+  STS :: SmallerThan n -> SmallerThan ('S n) 
 
 -- | b. Write the '(!!)' function:
 
 (!!) :: Vector n a -> SmallerThan n -> a
-(!!) = error "Implement me!"
+(VCons a _) !! STZ    = a
+(VCons a v) !! (STS n) = v !! n
 
 -- | c. Write a function that converts a @SmallerThan n@ into a 'Nat'.
+
+convert :: SmallerThan n -> Nat
+convert STZ     = Z
+convert (STS n) = S $ convert n
