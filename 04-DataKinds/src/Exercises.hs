@@ -296,6 +296,21 @@ myApp
 -- write to the file unless it's open. This exercise is a bit brain-bending;
 -- why? How could we make it more intuitive to write?
 
+data Program' (withOpenedFile :: Bool) (result :: Type) where
+  OpenFile'  :: Program' 'True result -> Program' 'False result
+  WriteFile' :: String -> Program' 'True result -> Program' 'True result
+  ReadFile'  :: (String -> Program' 'True result) -> Program' 'True result
+  CloseFile' :: Program' 'False result ->  Program' 'True result 
+  Exit'      :: result -> Program' 'False result
+
+myApp' :: Program' 'False Bool
+myApp'
+  = OpenFile' $ WriteFile' "HEY" $ (ReadFile' $ \contents ->
+      if contents == "WHAT"
+        then WriteFile' "... bug?" $ CloseFile' $ Exit' False
+        else CloseFile'            $ Exit' True) 
+
+
 -- | EXTRA: write an interpreter for this program. Nothing to do with data
 -- kinds, but a nice little problem.
 
