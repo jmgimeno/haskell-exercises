@@ -333,8 +333,25 @@ myApp'
 -- | EXTRA: write an interpreter for this program. Nothing to do with data
 -- kinds, but a nice little problem.
 
-interpret :: Program {- ??? -} a -> IO a
-interpret = error "Implement me?"
+-- Actual file IO is not that interesting, so I'm going to cheat with some mock
+-- data:
+
+interpret :: Program' any a -> IO a
+
+interpret (OpenFile' next)
+  = putStrLn "Opened file..." >> interpret next
+
+interpret (WriteFile' output next)
+  = putStrLn ("Writing " <> output <> "...") >> interpret next
+
+interpret (ReadFile' k)
+  = interpret (k "Some file contents")
+
+interpret (CloseFile' next)
+  = putStrLn "Closing file..." >> interpret next
+
+interpret (Exit' x)
+  = putStrLn "Goodbye!" >> pure x
 
 
 
