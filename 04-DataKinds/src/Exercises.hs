@@ -296,19 +296,38 @@ myApp
 -- write to the file unless it's open. This exercise is a bit brain-bending;
 -- why? How could we make it more intuitive to write?
 
-data Program' (withOpenedFile :: Bool) (result :: Type) where
-  OpenFile'  :: Program' 'True result -> Program' 'False result
-  WriteFile' :: String -> Program' 'True result -> Program' 'True result
-  ReadFile'  :: (String -> Program' 'True result) -> Program' 'True result
-  CloseFile' :: Program' 'False result ->  Program' 'True result 
-  Exit'      :: result -> Program' 'False result
+data Program' (fileIsOpen :: Bool) result where
+  OpenFile'
+    :: Program' 'True result  -- What happens after this has an open file.
+    -> Program' 'False result -- Can't open a file if one is already open.
+
+  WriteFile'
+    :: String -> Program' 'True result -- Writing doesn't close the file.
+    -> Program' 'True result           -- Writing only works if a file is open.
+
+  ReadFile'
+    :: (String -> Program' 'True result) -- Reading doesn't close the file.
+    -> Program' 'True result             -- Only works when a file is open.
+
+  CloseFile'
+    :: Program' 'False result -- Closing a file closes the file.
+    -> Program' 'True result  -- Only works if a file is open.
+ 
+  -- This is the important line, really. We explicitly don't allow programs to
+  -- end with open file handlers.
+
+  Exit'
+    :: result
+    -> Program' 'False result -- Exiting is a "closed file" operation.
+
 
 myApp' :: Program' 'False Bool
 myApp'
   = OpenFile' $ WriteFile' "HEY" $ (ReadFile' $ \contents ->
       if contents == "WHAT"
         then WriteFile' "... bug?" $ CloseFile' $ Exit' False
-        else CloseFile'            $ Exit' True) 
+                              -- fix ^
+        else CloseFile'            $ Exit' True)
 
 
 -- | EXTRA: write an interpreter for this program. Nothing to do with data
