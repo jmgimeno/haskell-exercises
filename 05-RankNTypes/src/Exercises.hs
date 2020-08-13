@@ -167,12 +167,21 @@ data Text = Text String
 -- | Uh oh! What's the type of our children? It could be either! In fact, it
 -- could probably be anything that implements the following class, allowing us
 -- to render our DSL to an HTML string:
-class Renderable component where render :: component -> String
+class Renderable component where 
+  render :: component -> String
 
 -- | a. Write a type for the children.
 
+data HTML = forall a. Renderable a => HTML { properties :: (String, String), childrem :: [a] }
+
 -- | b. What I'd really like to do when rendering is 'fmap' over the children
 -- with 'render'; what's stopping me? Fix it!
+
+instance Renderable Text where
+  render (Text t) = t
+
+instance Renderable HTML where
+  render (HTML (p, v) children) = p ++ v ++ concatMap render children
 
 -- | c. Now that we're an established Haskell shop, we would /also/ like the
 -- option to render our HTML to a Shakespeare template to write to a file
