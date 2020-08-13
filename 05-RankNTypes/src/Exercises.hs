@@ -2,10 +2,12 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE GADTs          #-}
 {-# LANGUAGE RankNTypes     #-}
+{-# LANGUAGE LambdaCase     #-}
+
 module Exercises where
 
 import Data.Kind (Type)
-
+import Data.Maybe (fromMaybe)
 
 
 
@@ -221,13 +223,17 @@ unwrap (BoolBox   _ inner) f = Just $ f inner
 -- layer's constructor.
 
 innerName :: MysteryBox a -> Maybe String
-innerName box = unwrap box $ \inner -> case inner of
-  EmptyBox        -> "EmptyBox"
-  (IntBox _ _)    -> "IntBox"
-  (StringBox _ _) -> "StringBox"
-  (BoolBox _ _)   -> "BoolBox"
+innerName box = unwrap box $ \case
+  EmptyBox      -> "EmptyBox"
+  IntBox    _ _ -> "IntBox"
+  StringBox _ _ -> "StringBox"
+  BoolBox   _ _ -> "BoolBox"
 
-
+printInner :: MysteryBox a -> String
+printInner xs = fromMaybe "No inner layer" $ unwrap xs $ \case
+  IntBox    _ _ -> "Now... an Int!"
+  StringBox _ _ -> "Now... a String!"
+  BoolBox   _ _ -> "Now... a Bool!"
 
 {- SEVEN -}
 
