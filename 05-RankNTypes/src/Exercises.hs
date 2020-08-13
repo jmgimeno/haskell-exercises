@@ -207,12 +207,25 @@ data MysteryBox a where
 -- | a. Knowing what we now know about RankNTypes, we can write an 'unwrap'
 -- function! Write the function, and don't be too upset if we need a 'Maybe'.
 
+unwrap :: MysteryBox a -> (forall a. MysteryBox a -> r) -> Maybe r
+unwrap EmptyBox            _ = Nothing
+unwrap (IntBox    _ inner) f = Just $ f inner
+unwrap (StringBox _ inner) f = Just $ f inner
+unwrap (BoolBox   _ inner) f = Just $ f inner
+
 -- | b. Why do we need a 'Maybe'? What can we still not know?
+
+-- We don't know whether there is an inner box inside.
 
 -- | c. Write a function that uses 'unwrap' to print the name of the next
 -- layer's constructor.
 
-
+innerName :: MysteryBox a -> Maybe String
+innerName box = unwrap box $ \inner -> case inner of
+  EmptyBox        -> "EmptyBox"
+  (IntBox _ _)    -> "IntBox"
+  (StringBox _ _) -> "StringBox"
+  (BoolBox _ _)   -> "BoolBox"
 
 
 
