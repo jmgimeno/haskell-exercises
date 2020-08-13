@@ -83,21 +83,18 @@ unPackEqPair f (EqPair x y) = f x y
 -- | b. Write a function that takes a list of 'EqPair's and filters it
 -- according to some predicate on the unpacked values.
 
-filterEqPairList :: (forall a. Eq a => a -> a -> Bool) -> [EqPair] -> [EqPair]
-filterEqPairList _ [] = []
-filterEqPairList p (x : xs)
-  | unPackEqPair p x = x : filterEqPairList p xs
-  | otherwise        = filterEqPairList p xs
+filter:: (forall a. Eq a => a -> a -> Bool) -> [EqPair] -> [EqPair]
+filter p = Prelude.filter $ unPackEqPair p
 
 -- | c. Write a function that unpacks /two/ 'EqPair's. 
 
 unTwoPackEqPair :: (forall a. Eq a => a -> a -> r) -> EqPair -> EqPair -> (r, r)
-unTwoPackEqPair f (EqPair x y) (EqPair x' y') = (f x y, f x' y')
+unTwoPackEqPair f x y = (unPackEqPair f x, unPackEqPair f y)
 
 -- Now that both our variables are in rank-2 position, can we compare values 
 -- from different pairs?
 
--- No, because we don't know whether r is comparable or not.
+-- I suppose yes (this is not answered), because we get to choose the r
 
 
 
