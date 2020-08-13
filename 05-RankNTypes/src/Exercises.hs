@@ -189,6 +189,7 @@ instance Renderable Child where
 -- (http://hackage.haskell.org/package/shakespeare). How could we support this
 -- new requirement with minimal code changes?
 
+-- Add another method to the type class, and fix the instances!
 
 
 
