@@ -122,13 +122,23 @@ data Nested input output subinput suboutput
 -- | a. Write a GADT to existentialise @subinput@ and @suboutput@.
 
 data NestedX input output where
-  -- ...
+  Nest :: Nested input output subinput suboutput -> NestedX input output
 
 -- | b. Write a function to "unpack" a NestedX. The user is going to have to
 -- deal with all possible @subinput@ and @suboutput@ types.
 
+unpackNestedX
+  :: (forall subinput suboutput. Nested input output subinput suboutput -> r)
+  -> NestedX input output -> r
+unpackNestedX f (Nest x) = f x
+
 -- | c. Why might we want to existentialise the subtypes away? What do we lose
 -- by doing so? What do we gain?
+
+-- If we can get from our parent input to the child input, and from the child
+-- output to the parent output, do we really care about the child inputs and
+-- outputs? Probably not - by existentialising them, we don't have to keep
+-- track of them in types.
 
 -- In case you're interested in where this actually turned up in the code:
 -- https://github.com/i-am-tom/purescript-panda/blob/master/src/Panda/Internal/Types.purs#L84
