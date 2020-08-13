@@ -64,7 +64,7 @@ length = unpackCanFold $ foldr (\_ n -> n + 1) 0
 
 instance Foldable CanFold where
   foldr f z (CanFold x) = foldr f z x
-
+--foldMap f (CanFold xs) = foldMap f xs
 
 
 {- THREE -}
