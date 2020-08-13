@@ -77,12 +77,27 @@ data EqPair where
 -- | a. Write a function that "unpacks" an 'EqPair' by applying a user-supplied
 -- function to its pair of values in the existential type.
 
+unPackEqPair :: (forall a. Eq a => a -> a -> r) -> EqPair -> r
+unPackEqPair f (EqPair x y) = f x y
+
 -- | b. Write a function that takes a list of 'EqPair's and filters it
 -- according to some predicate on the unpacked values.
 
--- | c. Write a function that unpacks /two/ 'EqPair's. Now that both our
--- variables are in rank-2 position, can we compare values from different
--- pairs?
+filterEqPairList :: (forall a. Eq a => a -> a -> Bool) -> [EqPair] -> [EqPair]
+filterEqPairList _ [] = []
+filterEqPairList p (x : xs)
+  | unPackEqPair p x = x : filterEqPairList p xs
+  | otherwise        = filterEqPairList p xs
+
+-- | c. Write a function that unpacks /two/ 'EqPair's. 
+
+unTwoPackEqPair :: (forall a. Eq a => a -> a -> r) -> EqPair -> EqPair -> (r, r)
+unTwoPackEqPair f (EqPair x y) (EqPair x' y') = (f x y, f x' y')
+
+-- Now that both our variables are in rank-2 position, can we compare values 
+-- from different pairs?
+
+-- No, because we don't know whether r is comparable or not.
 
 
 
