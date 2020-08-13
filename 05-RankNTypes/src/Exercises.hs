@@ -53,12 +53,12 @@ unpackCanFold f (CanFold x) = f x
 -- | b. Can we use 'unpackCanFold' to figure out if a 'CanFold' is "empty"?
 
 isEmpty :: CanFold a -> Bool
-isEmpty = unpackCanFold $ foldr (\_ _ -> False) True
+isEmpty = unpackCanFold $ foldr (const $ const False) True
 
 -- Could we write @length :: CanFold a -> Int@? If so, write it!
 
 length :: CanFold a -> Int
-length = unpackCanFold $ foldr (\_ n -> n + 1) 0
+length = unpackCanFold $ foldr (const (+1)) 0
 
 -- | c. Write a 'Foldable' instance for 'CanFold'. Don't overthink it.
 
