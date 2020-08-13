@@ -27,11 +27,13 @@ unpackExlistential (Cons a l) f = f a : unpackExlistential l f
 -- | b. Regardless of which type @r@ actually is, what can we say about the
 -- values in the resulting list?
 
--- Nothing
+-- They're all the same value - we don't know anything about @a@, so the
+-- function provided will always have to be @const <something>@.
 
 -- | c. How do we "get back" knowledge about what's in the list? Can we?
 
--- I don't know but I think we cannot.
+-- We can't! We'd need to alter the definition in some way to include a
+-- constraint, or a non-existential index.
 
 
 
