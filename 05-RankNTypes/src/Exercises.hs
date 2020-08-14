@@ -286,3 +286,7 @@ data Vector (n :: Nat) (a :: Type) where
 filterV :: (a -> Bool) -> Vector n a -> (forall m. Vector m a -> r) -> r
 filterV _ VNil f        = f VNil
 filterV p (VCons a v) f = filterV p v (\v' -> if (p a) then f (VCons a v') else f v')
+
+filterV' :: (a -> Bool) -> Vector n a -> (forall m. Vector m a -> r) -> r
+filterV' p  VNil        f = f VNil
+filterV' p (VCons x xs) f = filterV p xs (if p x then f . VCons x else f)
