@@ -290,3 +290,19 @@ filterV p (VCons a v) f = filterV p v (\v' -> if (p a) then f (VCons a v') else 
 filterV' :: (a -> Bool) -> Vector n a -> (forall m. Vector m a -> r) -> r
 filterV' p  VNil        f = f VNil
 filterV' p (VCons x xs) f = filterV p xs (if p x then f . VCons x else f)
+
+length' :: Vector m a -> Int
+length' VNil = 0
+length' (VCons _ v) =  1 + length' v
+
+toList :: Vector m a -> [a]
+toList VNil         = []
+toList (VCons x xs) = x : toList xs 
+
+-- And I can do:
+
+-- filterV (==2) v length' 
+-- to get the number of elements which passes the test
+
+-- filterV (==2) v toList
+-- to get the list of elements which passes the test
