@@ -49,7 +49,7 @@ data CanFold a where
 
 -- | a. The following function unpacks a 'CanFold'. What is its type?
 
-unpackCanFold :: (forall f a. Foldable f => f a -> r) -> CanFold a -> r
+unpackCanFold :: (forall f. Foldable f => f a -> r) -> CanFold a -> r
 unpackCanFold f (CanFold x) = f x
 
 -- | b. Can we use 'unpackCanFold' to figure out if a 'CanFold' is "empty"?
