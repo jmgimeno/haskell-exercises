@@ -248,7 +248,8 @@ data SNat (n :: Nat) where
 -- | We also saw that we could convert from an 'SNat' to a 'Nat':
 
 toNat :: SNat n -> Nat
-toNat = error "You should already know this one ;)"
+toNat SZ = Z
+toNat (SS n) = S (toNat n)
 
 -- | How do we go the other way, though? How do we turn a 'Nat' into an 'SNat'?
 -- In the general case, this is impossible: the 'Nat' could be calculated from
@@ -264,7 +265,9 @@ toNat = error "You should already know this one ;)"
 -- | If you're looking for a property that you could use to test your function,
 -- remember that @fromNat x toNat === x@!
 
-
+fromNat :: Nat -> (forall n. SNat n -> r) -> r
+fromNat Z f     = f SZ
+fromNat (S n) f = fromNat n (f . SS)
 
 
 
