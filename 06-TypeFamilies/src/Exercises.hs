@@ -155,7 +155,7 @@ type family Insert (n :: Nat) (t :: Tree) :: Tree where
   Insert n 'Empty = 'Empty
   Insert n ('Node l x r) = Insert' (Compare n x) n ('Node l x r) 
 
-type family Insert' (o :: Ordering ) (n :: Nat) (t :: Tree) :: Tree where
+type family Insert' (o :: Ordering) (n :: Nat) (t :: Tree) :: Tree where
   Insert' 'LT n ('Node l x r) = 'Node (Insert n l) x r
   Insert' 'EQ _ t             = t
   Insert' 'GT n ('Node l x r) = 'Node l x (Insert n r)
@@ -165,6 +165,27 @@ type family Insert' (o :: Ordering ) (n :: Nat) (t :: Tree) :: Tree where
 
 -- | Write a type family to /delete/ a promoted 'Nat' from a promoted 'Tree'.
 
+type family Delete (n :: Nat) (t :: Tree) :: Tree where
+  Delete _ 'Empty = 'Empty
+  Delete n ('Node l x r) = Delete' (Compare n x) n ('Node l x r)
+
+type family Delete' (o :: Ordering) (n :: Nat) (t :: Tree) where
+  Delete' 'LT n ('Node l x r) = 'Node (Delete n l) x r
+  Delete' 'EQ n t             = RemoveRoot t
+  Delete' 'GT n ('Node l x r) = 'Node l x (Delete n r)
+
+type family RemoveRoot (t :: Tree) :: Tree where
+  RemoveRoot ('Node 'Empty _ r) = r
+  RemoveRoot ('Node l _ 'Empty) = l
+  RemoveRoot ('Node l _ r)      = 'Node l (LeftMost r) (RemoveLeftMost r)
+
+type family LeftMost (t :: Tree) :: Nat where
+  LeftMost ('Node 'Empty x _) = x
+  LeftMost ('Node l _ _)      = LeftMost l
+
+type family RemoveLeftMost (t :: Tree) :: Tree where
+  RemoveLeftMost ('Node 'Empty _ r) = r
+  RemoveLeftMost ('Node l x r)      = 'Node (RemoveLeftMost l) x r
 
 
 
