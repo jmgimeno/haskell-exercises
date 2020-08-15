@@ -67,6 +67,19 @@ append (VCons x xs) ys = VCons x (append xs ys)
 -- @a -> Vector m b@, and produces a list that is the concatenation of these
 -- results. This could end up being a deceptively big job.
 
+-- | This is a really interesting problem, and really exposes the problems we
+-- have in type-level programming: we can't convince GHC that @x + y == y + x@,
+-- or that @x + (y + z) == (x + y) + z@, without providing a very explicit
+-- proof. It just so happens that, if we define `**` with the successor's
+-- recursive step on the /right/ (as above), we're fine and don't need to do
+-- any of this hard work. Unfortunately, though, we'll regularly be less lucky.
+
+-- That is why I had to change the definition of **
+
+-- This is irritating enough that libraries (or, rather, plugins) such as
+-- http://hackage.haskell.org/package/ghc-typelits-natnormalise exist purely to
+-- avoid these messes.
+
 flatMap :: Vector n a -> (a -> Vector m b) -> Vector (n ** m) b
 flatMap VNil         _ = VNil
 flatMap (VCons x xs) f = append (f x) (flatMap xs f)
