@@ -151,8 +151,14 @@ data Tree = Empty | Node Tree Nat Tree
 
 -- | Write a type family to insert a promoted 'Nat' into a promoted 'Tree'.
 
+type family Insert (n :: Nat) (t :: Tree) :: Tree where
+  Insert n 'Empty = 'Empty
+  Insert n ('Node l x r) = Insert' (Compare n x) n ('Node l x r) 
 
-
+type family Insert' (o :: Ordering ) (n :: Nat) (t :: Tree) :: Tree where
+  Insert' 'LT n ('Node l x r) = 'Node (Insert n l) x r
+  Insert' 'EQ _ t             = t
+  Insert' 'GT n ('Node l x r) = 'Node l x (Insert n r)
 
 
 {- SIX -}
