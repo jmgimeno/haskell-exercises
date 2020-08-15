@@ -2,6 +2,9 @@
 {-# LANGUAGE GADTs         #-}
 {-# LANGUAGE TypeFamilies  #-}
 {-# LANGUAGE TypeOperators #-}
+
+{-# LANGUAGE UndecidableInstances #-}
+
 module Exercises where
 
 import Data.Kind (Constraint, Type)
@@ -22,8 +25,19 @@ data Nat = Z | S Nat
 -- | a. Use the @TypeOperators@ extension to rewrite the 'Add' family with the
 -- name '+':
 
+type family (x :: Nat) + (y :: Nat) :: Nat where
+  'Z     + y = y
+  ('S x) + y = 'S (x + y)
+
 -- | b. Write a type family '**' that multiplies two naturals using '(+)'. Which
 -- extension are you being told to enable? Why?
+
+type family (x :: Nat) ** (y :: Nat) :: Nat where
+  'Z     ** y = 'Z
+  ('S x) ** y = (x ** y) + y
+
+-- UndecidableInstances
+--
 
 data SNat (value :: Nat) where
   SZ :: SNat 'Z
@@ -31,8 +45,9 @@ data SNat (value :: Nat) where
 
 -- | c. Write a function to add two 'SNat' values.
 
-
-
+addS :: SNat n -> SNat m -> SNat (n + m)
+addS SZ     y = y
+addS (SS x) y = SS (addS x y)
 
 
 {- TWO -}
