@@ -288,8 +288,8 @@ type family Every (c :: Type -> Constraint) (x :: [Type]) :: Constraint where
 -- every type in the list.
 
 instance Every Show xs => Show(HList xs) where
-  show HNil         = ""
-  show (HCons x xs) = show x ++ " " ++ show xs
+  show HNil         = "[]"
+  show (HCons x xs) = show x ++ ":" ++ show xs
 
 -- | c. Write an 'Eq' instance for 'HList'. Then, write an 'Ord' instance.
 -- Was this expected behaviour? Why did we need the constraints?
@@ -297,6 +297,13 @@ instance Every Show xs => Show(HList xs) where
 instance Every Eq xs => Eq(HList xs) where
   HNil         == HNil           = True
   (HCons x xs) == (HCons x' xs') = x == x' && xs == xs'
+
+-- We have to add 'Every Eq xs' here, which may seem odd, as 'Ord' has
+-- previously /implied/ 'Eq'. If GHC knows that every element has an 'Ord'
+-- instance, why can't it tell that every one has an 'Eq' instance? The reason
+-- is that it certainly /could/ if it tried a bit harder. GHC can't /see/ a
+-- constraint that says any particular @x@ has an 'Ord' constraint, which means
+-- it can't convince itself that this will be true in the general case.
 
 instance (Every Eq xs, Every Ord xs) => Ord(HList xs) where
   compare HNil HNil = EQ
