@@ -252,7 +252,13 @@ data HList (xs :: [Type]) where
 
 -- | Write a function that appends two 'HList's.
 
+type family Append (xs :: [Type]) (ys :: [Type]) :: [Type] where
+  Append '[]       ys = ys
+  Append (x ': xs) ys = x ': Append xs ys
 
+append' :: HList xs -> HList ys -> HList (Append xs ys)
+append' HNil         ys = ys
+append' (HCons x xs) ys = HCons x (append' xs ys)
 
 
 
