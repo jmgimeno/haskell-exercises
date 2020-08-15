@@ -130,11 +130,18 @@ type family Max (x :: Nat) (y :: Nat) :: Nat where
   Max     x    'Z  = x
   Max ('S x)('S y) = 'S (Max x y)
 
+type family Max' (x :: Nat) (y :: Nat) :: Nat where
+  Max' x y = Max'' (Compare x y) x y
+
+type family Max'' (o :: Ordering) (x :: Nat) (y :: Nat) :: Nat where
+  Max'' 'LT _ y = y
+  Max''  _  x _ = x
+
 -- | c. Write a family to get the maximum natural in a list.
 
-type family MaxL (xs :: [Nat]) :: Nat where
-  MaxL '[]       = 'Z
-  MaxL (x ': xs) = Max x (MaxL xs)
+type family Maximum (xs :: [Nat]) :: Nat where
+  Maximum '[]       = 'Z
+  Maximum (x ': xs) = Max x (Maximum xs)
 
 
 
