@@ -152,7 +152,7 @@ data Tree = Empty | Node Tree Nat Tree
 -- | Write a type family to insert a promoted 'Nat' into a promoted 'Tree'.
 
 type family Insert (n :: Nat) (t :: Tree) :: Tree where
-  Insert n 'Empty = 'Empty
+  Insert n 'Empty        = 'Node 'Empty n 'Empty
   Insert n ('Node l x r) = Insert' (Compare n x) n ('Node l x r) 
 
 type family Insert' (o :: Ordering) (n :: Nat) (t :: Tree) :: Tree where
@@ -165,14 +165,16 @@ type family Insert' (o :: Ordering) (n :: Nat) (t :: Tree) :: Tree where
 
 -- | Write a type family to /delete/ a promoted 'Nat' from a promoted 'Tree'.
 
-type family Delete (n :: Nat) (t :: Tree) :: Tree where
-  Delete _ 'Empty = 'Empty
-  Delete n ('Node l x r) = Delete' (Compare n x) n ('Node l x r)
+-- MySolution:
 
-type family Delete' (o :: Ordering) (n :: Nat) (t :: Tree) where
-  Delete' 'LT n ('Node l x r) = 'Node (Delete n l) x r
-  Delete' 'EQ n t             = RemoveRoot t
-  Delete' 'GT n ('Node l x r) = 'Node l x (Delete n r)
+type family MyDelete (n :: Nat) (t :: Tree) :: Tree where
+  MyDelete _ 'Empty = 'Empty
+  MyDelete n ('Node l x r) = Delete' (Compare n x) n ('Node l x r)
+
+type family MyDelete' (o :: Ordering) (n :: Nat) (t :: Tree) where
+  MyDelete' 'LT n ('Node l x r) = 'Node (MyDelete n l) x r
+  MyDelete' 'EQ n t             = RemoveRoot t
+  MyDelete' 'GT n ('Node l x r) = 'Node l x (MyDelete n r)
 
 type family RemoveRoot (t :: Tree) :: Tree where
   RemoveRoot ('Node 'Empty _ r) = r
@@ -187,8 +189,57 @@ type family RemoveLeftMost (t :: Tree) :: Tree where
   RemoveLeftMost ('Node 'Empty _ r) = r
   RemoveLeftMost ('Node l x r)      = 'Node (RemoveLeftMost l) x r
 
+-- Official solution:
+-- SUPER UGLY.
+type family Delete (x :: Nat) (xs :: Tree) :: Tree where
+  Delete x  'Empty       = 'Empty
+  Delete x ('Node l c r) = Delete' (Compare x c) x ('Node l c r)
 
+-- We can't let-bind the result of a function like 'Compare', so we have to
+-- have a helper family to compute the above.
+type family Delete' (o :: Ordering) (x :: Nat) (xs :: Tree) :: Tree where
+  Delete' 'LT x ('Node  l     c r) = 'Node (Delete x l) c r
+  Delete' 'GT x ('Node  l     c r) = 'Node l c (Delete x r)
+  Delete' 'EQ x ('Node 'Empty c r) = r
+  Delete' 'EQ x ('Node  l     c r) = Repair (Biggest l) r
 
+-- ... We also can't have a helper family for the last case above, so we need
+-- two more helper families:
+type family Repair (parts :: (Nat, Tree)) (xs :: Tree) :: Tree where
+  Repair '(c, l) r = 'Node l c r
+
+type family Biggest (xs :: Tree) :: (Nat, Tree) where
+  Biggest ('Node l c 'Empty) = '(c, l)
+  Biggest ('Node l c r)      = Biggest' l c (Biggest r)
+
+-- Reconstructing the tree would also require a let-binding, so we have
+-- /another/ helper family. Eurgh!
+type family Biggest' (l :: Tree) (c :: Nat) (r' :: (Nat, Tree)) :: (Nat, Tree) where
+  Biggest' l c '(x, r) = '(x, 'Node l c r)
+
+-- We can use this type to write "tests" for the above. Any mention of Refl
+-- will force GHC to try to unify the two type parameters. If it fails, we get
+-- a type error!
+data (x :: Tree) :~: (y :: Tree) where
+  Refl :: x :~: x
+
+deleteTest0 :: Delete 'Z 'Empty :~: 'Empty
+deleteTest0 = Refl
+
+deleteTest1 :: Delete 'Z (Insert 'Z 'Empty) :~: 'Empty
+deleteTest1 = Refl
+
+deleteTest2 :: Insert 'Z (Insert 'Z 'Empty) :~: Insert 'Z 'Empty
+deleteTest2 = Refl
+
+deleteTest3
+   :: Insert ('S 'Z) (Insert 'Z 'Empty)
+  :~: 'Node 'Empty 'Z ('Node 'Empty ('S 'Z) 'Empty)
+deleteTest3 = Refl
+
+-- In case you're interested, here's a failing test!
+-- deleteTest4 :: Insert 'Z 'Empty :~: 'Empty
+-- deleteTest4 = Refl
 
 {- SEVEN -}
 
