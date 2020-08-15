@@ -34,7 +34,7 @@ type family (x :: Nat) + (y :: Nat) :: Nat where
 
 type family (x :: Nat) ** (y :: Nat) :: Nat where
   'Z     ** y = 'Z
-  ('S x) ** y = (x ** y) + y
+  ('S x) ** y = y + (x ** y)
 
 -- UndecidableInstances
 --
@@ -59,14 +59,17 @@ data Vector (count :: Nat) (a :: Type) where
 -- | a. Write a function that appends two vectors together. What would the size
 -- of the result be?
 
--- append :: Vector m a -> Vector n a -> Vector ??? a
+append :: Vector m a -> Vector n a -> Vector (m + n) a
+append VNil         ys = ys
+append (VCons x xs) ys = VCons x (append xs ys)
 
 -- | b. Write a 'flatMap' function that takes a @Vector n a@, and a function
 -- @a -> Vector m b@, and produces a list that is the concatenation of these
 -- results. This could end up being a deceptively big job.
 
--- flatMap :: Vector n a -> (a -> Vector m b) -> Vector ??? b
-flatMap = error "Implement me!"
+flatMap :: Vector n a -> (a -> Vector m b) -> Vector (n ** m) b
+flatMap VNil         _ = VNil
+flatMap (VCons x xs) f = append (f x) (flatMap xs f)
 
 
 
