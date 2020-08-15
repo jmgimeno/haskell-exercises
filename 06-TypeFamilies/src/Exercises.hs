@@ -314,6 +314,67 @@ instance (Every Eq xs, Every Ord xs) => Ord(HList xs) where
 -- | a. Write a type family to calculate all natural numbers up to a given
 -- input natural.
 
+-- Let's worry about performance another day...
+
+type family (x :: [Nat]) +++ (y :: [Nat]) :: [Nat] where
+  '[] +++ ys = ys
+  (x ': xs) +++ ys = x ': (xs +++ ys)
+
+type family UpTo (x :: Nat) :: [Nat] where
+  UpTo  'Z    = '[ 'Z ]
+  UpTo ('S n) = UpTo n +++ '[ 'S n ]
+
 -- | b. Write a type-level prime number sieve.
 
+type family Sieve (x :: Nat) :: [Nat] where
+  Sieve x = Sieve' (Drop ('S ('S 'Z)) (UpTo x))
+
+type family Drop (n :: Nat) (xs :: [Nat]) :: [Nat] where
+  Drop  'Z     xs       = xs
+  Drop   _    '[     ]  = '[]
+  Drop ('S n) (x ': xs) = Drop n xs
+
+type family Sieve' (xs :: [Nat]) :: [Nat] where
+  Sieve' '[     ]  = '[]
+  Sieve' (x ': xs) = x ': Sieve' (DropEvery x xs)
+
+type family DropEvery (n :: Nat) (xs :: [Nat]) :: [Nat] where
+  DropEvery n xs = DropEvery' n n xs
+
+type family DropEvery' (c :: Nat) (n :: Nat) (xs :: [Nat]) :: [Nat] where
+  DropEvery' n ('S 'Z) (x ': xs) = DropEvery' n n xs
+  DropEvery' n   _     '[     ]  = '[]
+  DropEvery' n ('S c)  (x ': xs) = x ': DropEvery' n c xs
+
+type N0  = 'Z
+type N1  = 'S N0
+type N2  = 'S N1
+type N3  = 'S N2
+type N4  = 'S N3
+type N5  = 'S N4
+type N6  = 'S N5
+type N7  = 'S N6
+type N8  = 'S N7
+type N9  = 'S N8
+type N10 = 'S N9
+
+-- Little test...
+data (x :: [Nat]) :~~: (y :: [Nat]) where
+  NRefl :: x :~~: x
+
+test :: Sieve N10 :~~: '[ N2, N3, N5, N7 ]
+test = NRefl
+
+
 -- | c. Why is this such hard work?
+
+-- I think it boils down to a few things:
+--
+-- * No let-binding at the type level.
+--
+-- * No higher-order functions - I can't write higher-order helpers without
+--   running into complaints about type families not having all their
+--   arguments. Recent work on unsaturated type families (type families without
+--   all their arguments) promises a solution to this, though!
+--
+-- * Syntax!
