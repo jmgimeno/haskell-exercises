@@ -7,7 +7,6 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Exercises where --  This is starting to look impressive, right?
@@ -98,11 +97,33 @@ data HList (xs :: [Type]) where
 -- | a. Write this fold function. I won't give any hints to the definition, but
 -- we will probably need to call it like this:
 
--- test :: ??? => HList xs -> String
--- test = fold (TCProxy :: TCProxy Show) show
+type family Every (c :: Type -> Constraint) (xs :: [Type]) :: Constraint where
+  Every c '[] = ()
+  Every c (x ': xs) = (c x, Every c xs)
+
+data TCProxy (c :: Type -> Constraint)
+  = TCProxy
+
+fold
+  :: (Every c xs, Monoid m)
+  => TCProxy c
+  -> (forall x. c x => x -> m)
+  -> HList xs
+  -> m
+
+fold _ f  HNil        = mempty
+fold p f (HCons x xs) = f x <> fold p f xs
+
+test :: Every Show xs => HList xs -> String
+test = fold (TCProxy :: TCProxy Show) show
 
 -- | b. Why do we need the proxy to point out which constraint we're working
 -- with?  What does GHC not like if we remove it?
+
+-- The type is ambiguous! We've no way of telling it what the constraint /is/.
+-- Even if we give it a function like 'show', GHC's not going to /guess/ that
+-- we care about the 'Show' constraint, when the empty constraint would also
+-- fit the gap!
 
 -- | We typically define foldMap like this:
 
@@ -113,8 +134,13 @@ foldMap f = foldr (\x acc -> f x <> acc) mempty
 -- an @HList@? You may need to look into the __equality constraint__ introduced
 -- by the @GADTs@ and @TypeFamilies@ extensions, written as @(~)@:
 
-    -- This tells GHC that @a@ and @b@ are equivalent.
+    --  This tells GHC that @a@ and @b@ are equivalent.
+
 f :: a ~ b => a -> b
 f = id
 
 -- | Write @foldMap@ for @HList@!
+
+foldMapH :: (Monoid m, Every ((~) a) xs) => (a -> m) -> HList xs -> m
+foldMapH f  HNil        = mempty
+foldMapH f (HCons x xs) = f x <> foldMapH f xs
