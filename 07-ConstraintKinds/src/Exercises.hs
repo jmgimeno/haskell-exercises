@@ -38,16 +38,21 @@ data List a = Nil | Cons a (List a)
 -- constraints can the @Nil@ case satisfy?
 
 data ConstrainedList (c :: Type -> Constraint) where
-  CLNil  :: ConstrainedList c
-  CLCons :: c x => x -> ConstrainedList c -> ConstrainedList c
+  CNil  :: ConstrainedList c
+  CCons :: c x => x -> ConstrainedList c -> ConstrainedList c
 
 -- | b. Using what we know about RankNTypes, write a function to fold a
 -- constrained list. Note that we'll need a folding function that works /for
 -- all/ types who implement some constraint @c@. Wink wink, nudge nudge.
 
-foldConstrainedList :: (forall a. c a => a -> b -> b) -> b -> ConstrainedList c -> b
-foldConstrainedList f z CLNil         = z
-foldConstrainedList f z (CLCons x xs) = f x (foldConstrainedList f z xs)
+foldConstrainedList
+  :: Monoid m
+  => (forall x. c x => x -> m)
+  -> ConstrainedList c
+  -> m
+
+foldConstrainedList f  CNil        = mempty
+foldConstrainedList f (CCons x xs) = f x <> foldConstrainedList f xs
 
 -- | Often, I'll want to constrain a list by /multiple/ things. The problem is
 -- that I can't directly write multiple constraints into my type, because the
@@ -58,20 +63,23 @@ foldConstrainedList f z (CLCons x xs) = f x (foldConstrainedList f z xs)
 -- instance for any a who satisfies these constraints. Neat, right?
 
 -- | c. Write this class instance so that we can have a constraint that
--- combines `Monoid a` and `Show a`. 
+-- combines `Monoid a` and `Show a`. What other extension did you need to
+-- enable? Why?
+
+-- UndecidableInstances is required because nothing is getting "smaller" - when
+-- GHC encounters this constraint, it ends up with more things to solve! This
+-- means that GHC's (limited) termination checker can't be convinced that we'll
+-- ever terminate.
 
 class (Monoid a, Show a) => Constraints a
-instance (Monoid [a], Show [a]) => Constraints [a]
-
--- What other extension did you need to enable? Why?
-
--- FlexibleContexts & UndecidableInstances
+instance (Monoid a, Show a) => Constraints a
 
 -- | What can we now do with this constrained list that we couldn't before?
 -- There are two opportunities that should stand out!
 
-list :: ConstrainedList Constraints
-list = undefined
+-- We can show everything in it, and we can fill it with 'mempty'. We can't
+-- write a monoid instance, because we have no way of telling that two
+-- constrained lists contain the /same/ monoids. :(
 
 {- TWO -}
 
