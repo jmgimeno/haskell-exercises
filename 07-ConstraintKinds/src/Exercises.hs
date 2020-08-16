@@ -6,7 +6,11 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
-module Exercises where -- ^ This is starting to look impressive, right?
+
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
+
+module Exercises where --  This is starting to look impressive, right?
 
 import Data.Kind (Constraint, Type)
 
@@ -34,13 +38,16 @@ data List a = Nil | Cons a (List a)
 -- constraints can the @Nil@ case satisfy?
 
 data ConstrainedList (c :: Type -> Constraint) where
-  -- IMPLEMENT ME
+  CLNil  :: ConstrainedList c
+  CLCons :: c x => x -> ConstrainedList c -> ConstrainedList c
 
 -- | b. Using what we know about RankNTypes, write a function to fold a
 -- constrained list. Note that we'll need a folding function that works /for
 -- all/ types who implement some constraint @c@. Wink wink, nudge nudge.
 
--- foldConstrainedList :: ???
+foldConstrainedList :: (forall a. c a => a -> b -> b) -> b -> ConstrainedList c -> b
+foldConstrainedList f z CLNil         = z
+foldConstrainedList f z (CLCons x xs) = f x (foldConstrainedList f z xs)
 
 -- | Often, I'll want to constrain a list by /multiple/ things. The problem is
 -- that I can't directly write multiple constraints into my type, because the
@@ -51,18 +58,20 @@ data ConstrainedList (c :: Type -> Constraint) where
 -- instance for any a who satisfies these constraints. Neat, right?
 
 -- | c. Write this class instance so that we can have a constraint that
--- combines `Monoid a` and `Show a`. What other extension did you need to
--- enable? Why?
+-- combines `Monoid a` and `Show a`. 
 
--- class ??? => Constraints a
--- instance ??? => Constraints a
+class (Monoid a, Show a) => Constraints a
+instance (Monoid [a], Show [a]) => Constraints [a]
+
+-- What other extension did you need to enable? Why?
+
+-- FlexibleContexts & UndecidableInstances
 
 -- | What can we now do with this constrained list that we couldn't before?
 -- There are two opportunities that should stand out!
 
-
-
-
+list :: ConstrainedList Constraints
+list = undefined
 
 {- TWO -}
 
@@ -96,7 +105,7 @@ foldMap f = foldr (\x acc -> f x <> acc) mempty
 -- an @HList@? You may need to look into the __equality constraint__ introduced
 -- by the @GADTs@ and @TypeFamilies@ extensions, written as @(~)@:
 
-    -- * This tells GHC that @a@ and @b@ are equivalent.
+    -- This tells GHC that @a@ and @b@ are equivalent.
 f :: a ~ b => a -> b
 f = id
 
