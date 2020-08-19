@@ -23,10 +23,18 @@ type family All (c :: Type -> Constraint) (xs :: [Type]) :: Constraint where
 -- | a. Why does it have to be restricted to 'Type'? Can you make this more
 -- general?
 
+type family All' (c :: k -> Constraint) (xs :: [k]) :: Constraint where
+  All' c '[] = ()
+  All' c (x ': xs) = (c x, All' c xs)
+
 -- | b. Why does it have to be restricted to 'Constraint'? Can you make this
 -- more general? Why is this harder?
 
 
+-- Not really - we need some polymorphic way of "combining" things, probably
+-- passed in as another parameter. Because type families can't be
+-- partially-applied, this is actually really tricky to do in the general case
+-- (at the moment).
 
 
 
