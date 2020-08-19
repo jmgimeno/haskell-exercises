@@ -76,7 +76,9 @@ data Tagged' (name :: k) (a :: Type)
 -- | c. Often when we use the 'Tagged' type, we prefer a sum type (promoted
 -- with @DataKinds@) over strings. Why do you think this might be?
 
--- You can control all the different alternatives.
+-- This allows us to restrict the possible tags that a type may be given to
+-- some domain-specific set. Strings could be anything, so it's hard to know
+-- when you've covered all your cases.
 
 
 
