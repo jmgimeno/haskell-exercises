@@ -66,12 +66,17 @@ f (Tagged x) = putStrLn (show x <> " is important!")
 -- | a. Symbols are all well and good, but wouldn't it be nicer if we could
 -- generalise this?
 
+data Tagged' (name :: k) (a :: Type)
+  = Tagged' { runTagged' :: a }
+
 -- | b. Can we generalise 'Type'? If so, how? If not, why not?
+
+-- No, because we need a kind that allows run-time values
 
 -- | c. Often when we use the 'Tagged' type, we prefer a sum type (promoted
 -- with @DataKinds@) over strings. Why do you think this might be?
 
-
+-- You can control all the different alternatives.
 
 
 
