@@ -171,12 +171,15 @@ data Strings (n :: Nat) where
 -- compiler should do a lot of the work for you...
 
 data Sigma (f :: Nat -> Type) where
-  -- Sigma :: ... -> Sigma f
+  Sigma :: Sing n -> f n -> Sigma f
 
 -- | b. Surely, by now, you've guessed this question? Why are we restricting
 -- ourselves to 'Nat'? Don't we have some more general way to talk about
 -- singletons? The family of singletons? Any type within the family of
 -- singletons? Sing it with me! Generalise that type!
+
+data Sigma' (f :: k -> Type) where
+  Sigma' :: Sing k -> f k -> Sigma' f
 
 -- | c. In exercise 5, we wrote a 'filter' function for 'Vector'. Could we
 -- rewrite this with a sigma type, perhaps?
@@ -185,7 +188,11 @@ data Vector (a :: Type) (n :: Nat) where -- @n@ and @a@ flipped... Hmm, a clue!
   VNil  ::                    Vector a  'Z
   VCons :: a -> Vector a n -> Vector a ('S n)
 
-
+filter' :: (a -> Bool) -> Vector a n -> Sigma' (Vector a)
+filter' _ VNil = Sigma' SZ VNil
+filter' p (VCons a as)
+  | p a = case filter' p as of Sigma' n v -> Sigma' (SS n) (VCons a v)
+  | otherwise = filter' p as
 
 
 
