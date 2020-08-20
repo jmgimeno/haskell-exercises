@@ -3,11 +3,14 @@
 {-# LANGUAGE PolyKinds     #-}
 {-# LANGUAGE TypeFamilies  #-}
 {-# LANGUAGE TypeOperators #-}
+
+{-# LANGUAGE LambdaCase #-}
+
 module Exercises where
 
 import Data.Kind    (Constraint, Type)
 import GHC.TypeLits (Symbol)
-
+import Data.Maybe
 
 
 
@@ -252,6 +255,13 @@ serverLog [] = []
 serverLog ((Sigma SClient _) : scs) = serverLog scs
 serverLog ((Sigma SServer (SD sd)) : scs) = sd : serverLog scs
 
+-- Official solution:
+
+serverLog'' :: [Sigma Communication] -> [ServerData]
+serverLog'' = mapMaybe $ \case
+  Sigma SServer (SD serverData) -> Just serverData
+  _                             -> Nothing
+
 -- | d. Arguably, in this case, the Sigma type is overkill; what could we have
 -- done, perhaps using methods from previous chapters, to "hide" the label
 -- until we pattern-matched?
@@ -264,3 +274,17 @@ serverLog' :: [Communication'] -> [ServerData]
 serverLog' [] = []
 serverLog' ((CD' _) : scs) = serverLog' scs
 serverLog' ((SD' sd) : scs) = sd : serverLog' scs
+
+-- Official solution:
+
+-- Just /not/ used a type index! Sigma types become much more useful when we're
+-- dealing with extensible sets of data - perhaps something like:
+--
+-- @
+--   data Communication (label :: Label) where
+--     Packet :: DataFor label -> Communication label
+-- @
+--
+-- For some @DataFor@ type family that tells you what the packet should look
+-- like. In this case, we don't need separate constructors for each label, but
+-- we lose the ability to pattern-match without knowing the type.
