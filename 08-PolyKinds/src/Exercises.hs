@@ -95,13 +95,14 @@ data a :=: b where
 
 -- | b. Does @PolyKinds@ make a difference to this kind?
 
--- No, because a must be of a kind than allows values
-                                                          
+-- k -> k -> Type
+
 -- | c. Regardless of your answer to part (b), is this the most general kind we
 -- could possibly give this constructor? If not (hint: it's not), what more
 -- general kind could we give it, and how would we tell this to GHC?
 
--- data (a :=: b) :: k where ...
+-- We could give it a kind of @k -> l -> Type@, knowing that @k ~ l@ whenever
+-- we see a 'Refl'! We'd have to annotate it explicitly to get here, though.
 
 
 {- FOUR -}
