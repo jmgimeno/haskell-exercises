@@ -188,13 +188,22 @@ data Vector (a :: Type) (n :: Nat) where -- @n@ and @a@ flipped... Hmm, a clue!
   VNil  ::                    Vector a  'Z
   VCons :: a -> Vector a n -> Vector a ('S n)
 
-filter' :: (a -> Bool) -> Vector a n -> Sigma' (Vector a)
-filter' _ VNil = Sigma' SZ VNil
-filter' p (VCons a as)
-  | p a = case filter' p as of Sigma' n v -> Sigma' (SS n) (VCons a v)
-  | otherwise = filter' p as
+filterV :: (a -> Bool) -> Vector a n -> Sigma (Vector a)
+filterV _ VNil = Sigma SZ VNil
+filterV p (VCons a as)
+  | p a = case filterV p as of Sigma n v -> Sigma (SS n) (VCons a v)
+  | otherwise = filterV p as
 
+-- Official solution:
 
+filterV' :: (a -> Bool) -> Vector a n -> Sigma (Vector a)
+filterV' p  VNil        = Sigma SZ VNil
+filterV' p (VCons x xs)
+  | p x       = cons x (filterV' p xs)
+  | otherwise = filterV' p xs
+  where
+    cons :: a -> Sigma (Vector a) -> Sigma (Vector a)
+    cons x (Sigma n xs) = Sigma (SS n) (VCons x xs)
 
 
 {- SIX -}
