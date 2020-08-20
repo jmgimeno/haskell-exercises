@@ -170,16 +170,16 @@ data Strings (n :: Nat) where
 -- | a. Write this type's definition: If you run the above example, the
 -- compiler should do a lot of the work for you...
 
-data Sigma (f :: Nat -> Type) where
-  Sigma :: Sing n -> f n -> Sigma f
+--data Sigma (f :: Nat -> Type) where
+--  Sigma :: Sing n -> f n -> Sigma f
 
 -- | b. Surely, by now, you've guessed this question? Why are we restricting
 -- ourselves to 'Nat'? Don't we have some more general way to talk about
 -- singletons? The family of singletons? Any type within the family of
 -- singletons? Sing it with me! Generalise that type!
 
-data Sigma' (f :: k -> Type) where
-  Sigma' :: Sing k -> f k -> Sigma' f
+data Sigma (f :: k -> Type) where
+  Sigma :: Sing k -> f k -> Sigma f
 
 -- | c. In exercise 5, we wrote a 'filter' function for 'Vector'. Could we
 -- rewrite this with a sigma type, perhaps?
@@ -232,17 +232,35 @@ data ServerData
 -- server data.
 
 data Communication (label :: Label) where
-  -- {{Fill this space with your academic excellence}}
+  CD :: ClientData -> Communication 'Client
+  SD :: ServerData -> Communication 'Server
 
 -- | b. Write a singleton for 'Label'.
+
+data SLabel (label :: Label) where
+  SClient :: SLabel 'Client
+  SServer :: SLabel 'Server
 
 -- | c. Magically, we can now group together blocks of data with differing
 -- labels using @Sigma Communication@, and then pattern-match on the 'Sigma'
 -- constructor to find out which packet we have! Try it:
 
--- serverLog :: [Sigma Communication] -> [ServerData]
--- serverLog = error "YOU CAN DO IT"
+type instance Sing(label :: Label) = SLabel label
+
+serverLog :: [Sigma Communication] -> [ServerData]
+serverLog [] = []
+serverLog ((Sigma SClient _) : scs) = serverLog scs
+serverLog ((Sigma SServer (SD sd)) : scs) = sd : serverLog scs
 
 -- | d. Arguably, in this case, the Sigma type is overkill; what could we have
 -- done, perhaps using methods from previous chapters, to "hide" the label
 -- until we pattern-matched?
+
+data Communication' where
+  CD' :: ClientData -> Communication'
+  SD' :: ServerData -> Communication'
+
+serverLog' :: [Communication'] -> [ServerData]
+serverLog' [] = []
+serverLog' ((CD' _) : scs) = serverLog' scs
+serverLog' ((SD' sd) : scs) = sd : serverLog' scs
