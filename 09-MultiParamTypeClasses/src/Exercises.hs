@@ -158,8 +158,27 @@ instance Wanderable Functor Identity where
 
 instance Wanderable Applicative Maybe where
   --wander :: (a -> f b) -> Maybe a -> f (Maybe b)
-  wander f Nothing = pure Nothing
   wander f (Just x) = Just <$> f x
+  wander _ Nothing  = pure Nothing
+
+-- instance Wanderable Applicative [] where
+--   wander f (x : xs) = (:) <$> f x <*> wander f xs
+--   wander f [] = pure []
+
+-- @Could not deduce c0 f@ - the problem here is that, in the recursive case,
+-- we can't figure out which @Wanderable@ instance we want for the tail. To
+-- /us/, this seems strange - we just want the list version! However, we
+-- haven't yet told GHC that there's only ever going to be one @Wanderable@
+-- instance for @[]@, so it will complain.
+
+-- You actually can get around this, though, by making the instance more
+-- general. Here, we say this instance is for @[]@ and "all possible @c@
+-- values". GHC will see this, and select the instance. At /that/ point, it
+-- will try to solve the constraints, which here are just @c ~ Applicative@.
+
+instance c ~ Applicative => Wanderable c [] where
+  wander f (x : xs) = (:) <$> f x <*> wander f xs
+  wander _ []       = pure []
   
 -- | d. Assuming you turned on the extension suggested by GHC, why does the
 -- following produce an error? Using only the extensions we've seen so far, how
