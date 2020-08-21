@@ -34,14 +34,25 @@ newtype YourInt = YourInt Int
 
 -- | a. Write the class!
 
--- class Newtype ... ... where
---   wrap   :: ...
---   unwrap :: ...
+class Newtype a b where
+  wrap   :: b -> a
+  unwrap :: a -> b
 
 -- | b. Write instances for 'MyInt' and 'YourInt'.
 
+instance Newtype MyInt Int where
+  wrap x = MyInt x
+  unwrap (MyInt x) = x
+
+instance Newtype YourInt Int where
+  wrap x = YourInt x
+  unwrap (YourInt x) = x
+  
 -- | c. Write a function that adds together two values of the same type,
 -- providing that the type is a newtype around some type with a 'Num' instance.
+
+addN :: (Newtype t1 a, Newtype t2 a, Num a) => t1 -> t2 -> a
+addN t1 t2 = unwrap t1 + unwrap t2
 
 -- | d. We actually don't need @MultiParamTypeClasses@ for this if we use
 -- @TypeFamilies@. Look at the section on associated type instances here:
@@ -49,8 +60,20 @@ newtype YourInt = YourInt Int
 -- rewrite the class using an associated type, @Old@, to indicate the
 -- "unwrapped" type. What are the signatures of 'wrap' and 'unwrap'?
 
+class Newtype' t where
+  type Old t
+  wrap' :: Old t -> t
+  unwrap' :: t -> Old t
 
+instance Newtype' MyInt where
+  type Old MyInt = Int
+  wrap' x = MyInt x
+  unwrap' (MyInt x) = x
 
+instance Newtype' YourInt where
+  type Old YourInt = Int
+  wrap' x = YourInt x
+  unwrap' (YourInt x) = x
 
 
 {- TWO -}
