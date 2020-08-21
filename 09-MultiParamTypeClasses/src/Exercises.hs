@@ -34,25 +34,41 @@ newtype YourInt = YourInt Int
 
 -- | a. Write the class!
 
-class Newtype a b where
-  wrap   :: b -> a
-  unwrap :: a -> b
+class Newtype (new :: Type) (old :: Type) where
+  wrap   :: old -> new
+  unwrap :: new -> old
 
 -- | b. Write instances for 'MyInt' and 'YourInt'.
 
 instance Newtype MyInt Int where
-  wrap x = MyInt x
+  wrap = MyInt
   unwrap (MyInt x) = x
 
 instance Newtype YourInt Int where
-  wrap x = YourInt x
+  wrap = YourInt
   unwrap (YourInt x) = x
-  
+
 -- | c. Write a function that adds together two values of the same type,
 -- providing that the type is a newtype around some type with a 'Num' instance.
 
 addN :: (Newtype t1 a, Newtype t2 a, Num a) => t1 -> t2 -> a
 addN t1 t2 = unwrap t1 + unwrap t2
+
+-- Official solution:
+
+-- This function lets us tell GHC what the type of a value is by specifying it
+-- in a proxy. We'll see in the next chapter that we really don't need to do
+-- this, and there are plenty of ways to avoid it.
+
+the :: Proxy x -> x -> x
+the _ x = x
+
+-- With the above, we can write the following function. Note that we use the
+-- proxy to let GHC know what @old@ is: if we didn't do this, it would complain
+-- that it can't figure out which @Newtype@ to use!
+
+add :: (Newtype new old, Num old) => Proxy old -> new -> new -> new
+add _type x y = wrap (the _type (unwrap x + unwrap y))
 
 -- | d. We actually don't need @MultiParamTypeClasses@ for this if we use
 -- @TypeFamilies@. Look at the section on associated type instances here:
@@ -60,10 +76,11 @@ addN t1 t2 = unwrap t1 + unwrap t2
 -- rewrite the class using an associated type, @Old@, to indicate the
 -- "unwrapped" type. What are the signatures of 'wrap' and 'unwrap'?
 
-class Newtype' t where
-  type Old t
-  wrap' :: Old t -> t
-  unwrap' :: t -> Old t
+class Newtype' (new :: Type) where
+  type Old new :: Type
+
+  wrap'   :: Old new -> new
+  unwrap' :: new -> Old new
 
 instance Newtype' MyInt where
   type Old MyInt = Int
