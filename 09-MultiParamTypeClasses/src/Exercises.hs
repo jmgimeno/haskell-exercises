@@ -10,6 +10,9 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+
+{-# LANGUAGE AllowAmbiguousTypes #-}
+
 module Exercises where
 
 import Data.Kind (Constraint, Type)
@@ -121,15 +124,43 @@ instance Traversable Identity where
 -- | a. Write that little dazzler! What error do we get from GHC? What
 -- extension does it suggest to fix this?
 
--- class Wanderable … … where
---   wander :: … => (a -> f b) -> t a -> f (t b)
+class Wanderable (c :: (Type -> Type) -> Constraint) (t :: Type -> Type) where
+  wander :: c f => (a -> f b) -> t a -> f (t b)
+
+{-
+ AllowAmbiguousTypes
+
+• Could not deduce: c0 f
+  from the context: (Wanderable c t, c f)
+    bound by the type signature for:
+               wander :: forall (c :: (* -> *) -> Constraint) (t :: * -> *)
+                                (f :: * -> *) a b.
+                         (Wanderable c t, c f) =>
+                         (a -> f b) -> t a -> f (t b)
+    at /Users/jmgimeno/VSCodeProjects/haskell-exercises/09-MultiParamTypeClasses/src/Exercises.hs:128:3-47
+• In the ambiguity check for ‘wander’
+  To defer the ambiguity check to use sites, enable AllowAmbiguousTypes
+  When checking the class method:
+    wander :: forall (c :: (* -> *) -> Constraint) (t :: * -> *)
+                     (f :: * -> *) a b.
+              (Wanderable c t, c f) =>
+              (a -> f b) -> t a -> f (t b)
+-}
 
 -- | b. Write a 'Wanderable' instance for 'Identity'.
+
+instance Wanderable Functor Identity where
+  wander f (Identity x) = Identity <$> f x
 
 -- | c. Write 'Wanderable' instances for 'Maybe', '[]', and 'Proxy', noting the
 -- differing constraints required on the @f@ type. '[]' might not work so well,
 -- and we'll look at /why/ in the next part of this question!
 
+instance Wanderable Applicative Maybe where
+  --wander :: (a -> f b) -> Maybe a -> f (Maybe b)
+  wander f Nothing = pure Nothing
+  wander f (Just x) = Just <$> f x
+  
 -- | d. Assuming you turned on the extension suggested by GHC, why does the
 -- following produce an error? Using only the extensions we've seen so far, how
 -- could we solve this, perhaps in a way that involves another parameter to the
