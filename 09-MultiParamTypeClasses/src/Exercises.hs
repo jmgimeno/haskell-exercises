@@ -187,7 +187,20 @@ instance c ~ Applicative => Wanderable c [] where
 -- we'll see in later chapters that there are neater solutions to this
 -- problem!)
 
-test = wander Just [1, 2, 3]
+-- Using the constraint trick means this actually will now compile, even
+-- without the associated type.
+check = wander Just [1, 2, 3]
+
+-- If, for some reason, you can't do the above, the associated type solution
+-- looks like this:
+
+class Wanderable' (t :: Type -> Type) where
+  type Constrains t :: (Type -> Type) -> Constraint
+
+  -- I've used an infix constraint constructor here using the @TypeOperators@
+  -- extension, but this is a personal style preference rather than anything
+  -- clever.
+  wander' :: t `Constrains` f => (a -> f b) -> t a -> f (t b)
 
 
 
