@@ -187,7 +187,7 @@ instance c ~ Applicative => Wanderable c [] where
 -- we'll see in later chapters that there are neater solutions to this
 -- problem!)
 
--- test = wander Just [1, 2, 3]
+test = wander Just [1, 2, 3]
 
 
 
