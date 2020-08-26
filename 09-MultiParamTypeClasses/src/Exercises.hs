@@ -87,12 +87,12 @@ class Newtype' (new :: Type) where
 
 instance Newtype' MyInt where
   type Old MyInt = Int
-  wrap' x = MyInt x
+  wrap' = MyInt
   unwrap' (MyInt x) = x
 
 instance Newtype' YourInt where
   type Old YourInt = Int
-  wrap' x = YourInt x
+  wrap' = YourInt
   unwrap' (YourInt x) = x
 
 
