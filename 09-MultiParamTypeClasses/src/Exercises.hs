@@ -269,7 +269,15 @@ instance x < y => 'S x < 'S y where
 
 -- | a. Write that typeclass!
 
+class TypeEquals (x :: Type) (y :: Type) where
+  to :: x -> y
+  from :: y -> x
+
 -- | b. Write that instance!
+
+instance x ~ y => TypeEquals x y where
+  from x = x
+  to x = x
 
 -- | c. When GHC sees @x ~ y@, it can apply anything it knows about @x@ to @y@,
 -- and vice versa. We don't have the same luxury with /our/ class, however –
@@ -281,6 +289,12 @@ instance x < y => 'S x < 'S y where
 -- | d. GHC can see @x ~ y@ and @y ~ z@, then deduce that @x ~ z@. Can we do
 -- the same? Perhaps with a second instance? Which pragma(s) do we need and
 -- why? Can we even solve this?
+--
+-- There are a few ways to get /something/ to compile, but never what you want.
+-- Ultimately, the problem comes with telling GHC which of the two instances to
+-- pick: if you make the transitive case the "default" case, you'll loop
+-- forever. If you make the original case the default case, you'll always fail
+-- the equality check.
 
 
 
