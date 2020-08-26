@@ -227,27 +227,32 @@ data Fin (limit :: Nat) where
 
 class (x :: Nat) < (y :: Nat) where
   convert :: SNat x -> Fin y
-  coconvert :: Fin y -> SNat x -- (c)
+  coconvert :: Fin y -> Maybe (SNat x)
 
 -- | a. Write the instance that says @Z@ is smaller than @S n@ for /any/ @n@.
 
-instance Z < S n where
-  -- convert :: SNat Z -> Fin (S n)
+instance 'Z < 'S n where
   convert SZ = FZ
-  -- coconvert :: Fin (S n) -> SNat Z
-  coconvert _ = SZ
+
+  coconvert FZ = Just SZ
+  coconvert (FS _) = Nothing
 
 -- | b. Write an instance that says, if @x@ is smaller than @y@, then @S x@ is
 -- smaller than @S y@.
 
-instance x < y => S x < S y where
-  -- convert :: SNat (S x) -> Fin (S y)
-  convert (SS x) = FS (convert x)
-  -- coconvert :: Fin (S y) -> SNat (S x)
-  coconvert (FS  y) = SS (coconvert y)
+instance x < y => 'S x < 'S y where
+  convert (SS n) = FS (convert n)
+
+  coconvert FZ = Nothing
+  coconvert (FS n) = fmap SS (coconvert n)
 
 -- | c. Write the inverse function for the class definition and its two
 -- instances.
+
+-- This one's awkward because @Fin@ "forgets" the exact number, which means
+-- that the translation back must be partial. If we try to convert @Fin 8@ to
+-- @SNat 6@ (I'm using numeric literals for readability here), we should fail
+-- to do so.
 
 
 
