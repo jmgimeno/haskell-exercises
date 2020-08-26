@@ -227,11 +227,24 @@ data Fin (limit :: Nat) where
 
 class (x :: Nat) < (y :: Nat) where
   convert :: SNat x -> Fin y
+  coconvert :: Fin y -> SNat x -- (c)
 
 -- | a. Write the instance that says @Z@ is smaller than @S n@ for /any/ @n@.
 
+instance Z < S n where
+  -- convert :: SNat Z -> Fin (S n)
+  convert SZ = FZ
+  -- coconvert :: Fin (S n) -> SNat Z
+  coconvert _ = SZ
+
 -- | b. Write an instance that says, if @x@ is smaller than @y@, then @S x@ is
 -- smaller than @S y@.
+
+instance x < y => S x < S y where
+  -- convert :: SNat (S x) -> Fin (S y)
+  convert (SS x) = FS (convert x)
+  -- coconvert :: Fin (S y) -> SNat (S x)
+  coconvert (FS  y) = SS (coconvert y)
 
 -- | c. Write the inverse function for the class definition and its two
 -- instances.
