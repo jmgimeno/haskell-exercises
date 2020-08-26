@@ -254,6 +254,9 @@ instance x < y => 'S x < 'S y where
 -- @SNat 6@ (I'm using numeric literals for readability here), we should fail
 -- to do so.
 
+-- NOTE: I do not understand this solution, because these equations (I think)
+-- make conconvert _ = Nothing
+
 
 
 
