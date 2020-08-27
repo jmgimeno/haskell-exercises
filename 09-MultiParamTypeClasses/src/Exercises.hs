@@ -446,7 +446,7 @@ class Coat (a :: Weather) (b :: Temperature) where
 -- that /everyone/ knows, so they should be safe enough!
 
 -- No one needs a coat when it's sunny!
-instance Coat Sunny b where doINeedACoat _ _ = False
+instance {-# INCOHERENT #-} Coat Sunny b where doINeedACoat _ _ = False
 
 -- It's freezing out there - put a coat on!
 instance Coat a Cold where doINeedACoat _ _ = True
@@ -454,8 +454,8 @@ instance Coat a Cold where doINeedACoat _ _ = True
 -- | Several months pass, and your app is used by billions of people around the
 -- world. All of a sudden, your engineers encounter a strange error:
 
--- test :: Bool
--- test = doINeedACoat SSunny SCold
+test' :: Bool
+test' = doINeedACoat SSunny SCold
 
 -- | Clearly, our data scientists never thought of a day that could
 -- simultaneously be sunny /and/ cold. After months of board meetings, a
@@ -472,6 +472,8 @@ instance Coat a Cold where doINeedACoat _ _ = True
 -- | c. In spite of its scary name, can we verify that our use of it /is/
 -- undeserving of the first two letters of its name?
 
+-- Yes! There's only one INCOHERENT instance, so the choice will never be
+-- non-deterministic.
 
 
 
