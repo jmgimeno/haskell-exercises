@@ -409,7 +409,8 @@ variants' = [inject True, inject (3 :: Int), inject "hello"]
 -- | c. Why did we have to annotate the 3? This is getting frustrating... do
 -- you have any (not necessarily good) ideas on how we /could/ solve it?
 
-
+-- We could do a fallback instance that tries to unify any type variables with
+-- @Int@? There's honestly not much we can do here. :(
 
 
 
