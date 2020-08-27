@@ -20,8 +20,7 @@ import Data.Kind (Constraint, Type)
 import Data.Map (Map)
 import Data.Proxy (Proxy (..))
 
-import GHC.TypeLits (TypeError, ErrorMessage(Text))
-
+import GHC.TypeLits (TypeError, ErrorMessage(Text, (:<>:), ShowType))
 
 
 {- ONE -}
@@ -349,40 +348,29 @@ instance Pluck x (x ': xs) where
 
 -- | b. Write an instance for when the head /isn't/ equal to @x@.
 
-instance {-# OVERLAPPABLE #-} Pluck y xs => Pluck y (x ': xs) where
-  pluck (HCons _ xs) = pluck xs 
-  
+-- NOTE: OVERLAPPING is sufficient for this exercise, but I made it INCOHERENT
+-- to get a better error for part (d). Check the instance resolution rules
+-- again to see why this made the error better!
+instance {-# INCOHERENT #-} Pluck x xs => Pluck x (y ': xs) where
+  pluck (HCons _ xs) = pluck xs
+
 -- | c. Using [the documentation for user-defined type
 -- errors](http://hackage.haskell.org/package/base-4.11.1.0/docs/GHC-TypeLits.html#g:4)
 -- as a guide, write a custom error message to show when you've recursed
 -- through the entire @xs@ list (or started with an empty @HList@) and haven't
 -- found the type you're trying to find.
 
-instance TypeError (Text "Cannot Pluck functions.") => Pluck y '[] where
-  pluck _ = error "unreachable"
+instance TypeError
+    ( 'Text "Couldn't find " ':<>: 'ShowType x ':<>: 'Text " here!" )
+    => Pluck x '[] where
+  pluck = undefined
 
 -- | d. Making any changes required for your particular HList syntax, why
 -- doesn't the following work? Hint: try running @:t 3@ in GHCi.
 
---mystery :: Num n => n
---mystery = pluck (HCons 3 HNil)
-
-{-
-*MultiParamTypeClasses Exercises MultiParamTypeClasses> :t pluck (HCons 3 HNil)
-pluck (HCons 3 HNil) :: (Pluck x1 '[x2], Num x2) => x1
--}
-{-
-• Overlapping instances for Pluck Int '[x0]
-    arising from a use of ‘pluck’
-  Matching instances:
-    two instances involving out-of-scope types
-    (use -fprint-potential-instances to see them all)
-  (The choice depends on the instantiation of ‘x0’
-   To pick the first instance above, use IncoherentInstances
-   when compiling the other instance declarations)
-• In the expression: pluck (HCons 3 HNil)
-  In an equation for ‘mystery’: mystery = pluck (HCons 3 HNil)
--}
+-- The type of @3@ isn't @Int@ - it's more polymorphic than that.
+-- mystery :: Int
+-- mystery = pluck (HCons 3 HNil)
 
 
 
