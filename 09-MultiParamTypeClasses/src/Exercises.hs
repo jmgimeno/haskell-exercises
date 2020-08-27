@@ -307,6 +307,8 @@ instance x ~ y => TypeEquals x y where
 data HList (xs :: [Type]) where
   -- In fact, you know what? You can definitely write an HList by now – I'll
   -- just put my feet up and wait here until you're done!
+  HNil  :: HList '[]
+  HCons :: x -> HList xs -> HList (x ': xs)
 
 -- | Consider the following class for taking the given number of elements from
 -- the front of an HList:
@@ -316,12 +318,19 @@ class HTake (n :: Nat) (xs :: [Type]) (ys :: [Type]) where
 
 -- | a. Write an instance for taking 0 elements.
 
+instance HTake 'Z xs '[] where
+  htake SZ _ = HNil
+
 -- | b. Write an instance for taking a non-zero number. You "may" need a
 -- constraint on this instance.
 
+instance HTake n xs ys => HTake ('S n) (x ': xs) (x ': ys) where
+  htake (SS n) (HCons x xs) = HCons x (htake n xs)
+
 -- | c. What case have we forgotten? How might we handle it?
 
-
+instance HTake n '[] '[] where
+  htake _ HNil = HNil
 
 
 
