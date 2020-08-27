@@ -394,6 +394,17 @@ data Variant (xs :: [Type]) where
 -- you the value in the right position? Write it! If it works, the following
 -- should compile: @[inject True, inject (3 :: Int), inject "hello"]@.
 
+class Inject (x :: Type) (xs :: [Type]) where
+  inject :: x -> Variant xs
+
+instance Inject x (x ': xs) where
+  inject = Here
+
+instance {-# OVERLAPPABLE #-} Inject y xs => Inject y (x ': xs) where
+  inject x = There (inject x)
+
+variants' :: [Variant '[Bool, Int, String]]
+variants' = [inject True, inject (3 :: Int), inject "hello"]
 
 -- | c. Why did we have to annotate the 3? This is getting frustrating... do
 -- you have any (not necessarily good) ideas on how we /could/ solve it?
