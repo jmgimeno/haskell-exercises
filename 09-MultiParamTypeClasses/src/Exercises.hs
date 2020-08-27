@@ -380,22 +380,20 @@ instance TypeError
 -- number of parameters. Typically, we define it with two parameters: @Here@
 -- and @There@. These tell us which "position" our value inhabits:
 
--- variants :: [Variant '[Bool, Int, String]]
--- variants = [ Here True, There (Here 3), There (There (Here "hello")) ]
+variants :: [Variant '[Bool, Int, String]]
+variants = [ Here True, There (Here 3), There (There (Here "hello")) ]
 
 -- | a. Write the 'Variant' type to make the above example compile.
 
 data Variant (xs :: [Type]) where
-  -- Here  :: ...
-  -- There :: ...
+  Here  ::         x  -> Variant (x ': xs)
+  There :: Variant xs -> Variant (y ': xs)
 
 -- | b. The example is /fine/, but there's a lot of 'Here'/'There' boilerplate.
 -- Wouldn't it be nice if we had a function that takes a type, and then returns
 -- you the value in the right position? Write it! If it works, the following
 -- should compile: @[inject True, inject (3 :: Int), inject "hello"]@.
 
--- class Inject … … where
---   inject :: …
 
 -- | c. Why did we have to annotate the 3? This is getting frustrating... do
 -- you have any (not necessarily good) ideas on how we /could/ solve it?
