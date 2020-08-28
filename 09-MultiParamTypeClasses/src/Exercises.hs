@@ -21,7 +21,7 @@ import Data.Map (Map)
 import Data.Proxy (Proxy (..))
 
 import GHC.TypeLits (TypeError, ErrorMessage(Text, (:<>:), ShowType))
-
+import Data.Foldable (toList)
 
 {- ONE -}
 
@@ -488,10 +488,15 @@ test' = doINeedACoat SSunny SCold
 
 -- | a. Are these in conflict? When?
 
+-- When we have a [Char]?
+
 -- | b. Let's say we want to define an instance for any @f a@ where the @f@ is
 -- 'Foldable', by converting our type to a list and then showing that. Is there
 -- a pragma we can add to the first 'Show' instance above so as to preserve
 -- current behaviour? Would we need /more/ pragmas than this?
+
+instance {-# OVERLAPPABLE #-} (Foldable t, Show a) => Show (t a) where
+  show = show . toList
 
 -- | c. Somewhat confusingly, we've now introduced incoherence: depending on
 -- whether or not I've imported this module, 'show' will behave in different
@@ -499,7 +504,7 @@ test' = doINeedACoat SSunny SCold
 -- here, but they are missing the bigger issue; what have we done? How could we
 -- have avoided it?
 
-
+-- Use OVERLAPS instead of OVERLAPPABLE
 
 
 
