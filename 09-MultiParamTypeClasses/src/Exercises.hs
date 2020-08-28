@@ -555,12 +555,38 @@ class CommentCache where
 -- | a. What are those three ways? Could we turn them into parameters to a
 -- typeclass? Do it!
 
+class Cache (value :: Type) (id :: Type) (f :: Type -> Type) where
+  store :: value -> Map id value -> Map id value
+  load :: Map id value -> id -> f value
+
 -- | b. Write instances for 'User' and 'Comment', and feel free to implement
 -- them as 'undefined' or 'error'. Now, before uncommenting the following, can
--- you see what will go wrong? (If you don't see an error, try to call it in
--- GHCi...)
+-- you see what will go wrong?
 
--- oops cache = load cache (UserId (123 :: Int))
+{-
+instance Cache User UserId (Either Status) where
+  store = undefined
+  load = undefined
+
+instance Cache Comment CommentId Maybe where
+  store = undefined
+  load = undefined
+-}
+
+-- We don't know which instance to pick based solely on the fact that it's a
+-- UserId!
+
+cache :: Map UserId User
+cache = undefined
+result = load cache (UserId (123 :: Int))
 
 -- | c. Do we know of a sneaky trick that would allow us to fix this? Possibly
 -- involving constraints? Try!
+
+instance (value ~ User, f ~ Either Status) => Cache value UserId f where
+  store = undefined
+  load = undefined
+
+instance (value ~ Comment, f ~ Maybe) => Cache value CommentId f where
+  store = undefined
+  load = undefined
