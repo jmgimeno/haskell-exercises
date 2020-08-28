@@ -488,12 +488,17 @@ test' = doINeedACoat SSunny SCold
 
 -- | a. Are these in conflict? When?
 
--- When we have a [Char]?
+-- They overlap! @String ~ [Char]@, so any mention of showing a string /could/
+-- upset GHC.
 
 -- | b. Let's say we want to define an instance for any @f a@ where the @f@ is
 -- 'Foldable', by converting our type to a list and then showing that. Is there
 -- a pragma we can add to the first 'Show' instance above so as to preserve
 -- current behaviour? Would we need /more/ pragmas than this?
+
+-- OVERLAPPABLE would do it for the GHC case. In our specific contrived case,
+-- we might be better off adding OVERLAPS to all of them, so we simply pick the
+-- most specific instance available at the time.
 
 instance {-# OVERLAPPABLE #-} (Foldable t, Show a) => Show (t a) where
   show = show . toList
@@ -504,7 +509,9 @@ instance {-# OVERLAPPABLE #-} (Foldable t, Show a) => Show (t a) where
 -- here, but they are missing the bigger issue; what have we done? How could we
 -- have avoided it?
 
--- Use OVERLAPS instead of OVERLAPPABLE
+-- @f a@ is almost certainly an orphan instance! We'd have been better off
+-- creating something like @newtype ShowFoldable f a = SF (f a)@ and writing a
+-- Show instance for that.
 
 
 
