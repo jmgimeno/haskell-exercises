@@ -29,9 +29,15 @@ class Newtype (new :: Type) (old :: Type) where
 
 -- | a. Can we add a functional dependency to this class?
 
+class Newtype' (new :: Type) (old :: Type) | old -> new where
+  wrap'   :: old -> new
+  unwrap' :: new -> old
+
 -- | b. Why can't we add two?
 
-
+class Newtype'' (new :: Type) (old :: Type) | old -> new, new -> old where
+  wrap''   :: old -> new
+  unwrap'' :: new -> old
 
 
 
