@@ -39,7 +39,10 @@ class Newtype'' (new :: Type) (old :: Type) | old -> new, new -> old where
   wrap''   :: old -> new
   unwrap'' :: new -> old
 
-
+-- We wouldn't want to! It's very useful to be able to add multiple newtypes
+-- around the /same/ old type - for example, we might want to make sure we
+-- don't confuse two 'Double' values when one is being used as a distance and
+-- the other as a time duration.
 
 {- TWO -}
 
