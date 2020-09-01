@@ -63,13 +63,17 @@ class CanCache (entity :: Type) (index :: Type) | entity -> index where
 -- we call @store@ or @load@... can we parameterise it in some way?
 
 class CanCache' (functor :: Type -> Type) (entity :: Type) (index :: Type) | entity -> index where
-  store' :: Functor functor => entity -> functor ()
-  load'  :: Functor functor => index -> functor (Maybe entity)
+  store' :: entity -> functor ()
+  load'  :: index -> functor (Maybe entity)
+
+-- Why no Functor constraint in the solution?
 
 -- | c. Is there any sort of functional dependency that relates our
 -- parameterised functor to @entity@ or @index@? If so, how? If not, why not?
 
--- Because they're independent (not related by any type)
+-- | No, and nor would we want one - it would be nice to pick the functor for
+-- the same entity/index pair to be different things depending on, say, whether
+-- we're running a test or in production.
 
 
 
