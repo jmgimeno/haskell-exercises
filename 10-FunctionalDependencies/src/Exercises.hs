@@ -49,21 +49,27 @@ class Newtype'' (new :: Type) (old :: Type) | old -> new, new -> old where
 -- | Let's go back to a problem we had in the last exercise, and imagine a very
 -- simple cache in IO. Uncomment the following:
 
--- class CanCache (entity :: Type) (index :: Type) where
---   store :: entity -> IO ()
---   load  :: index -> IO (Maybe entity)
+class CanCache (entity :: Type) (index :: Type) | entity -> index where
+  store :: entity -> IO ()
+  load  :: index -> IO (Maybe entity)
 
 -- | a. Uh oh - there's already a problem! Any @entity@ type should have a
 -- fixed type of id/@index@, though... if only we could convince GHC... Could
 -- you have a go?
 
+-- entity -> index
+
 -- | b. @IO@ is fine, but it would be nice if we could choose the functor when
 -- we call @store@ or @load@... can we parameterise it in some way?
+
+class CanCache' (functor :: Type -> Type) (entity :: Type) (index :: Type) | entity -> index where
+  store' :: Functor functor => entity -> functor ()
+  load'  :: Functor functor => index -> functor (Maybe entity)
 
 -- | c. Is there any sort of functional dependency that relates our
 -- parameterised functor to @entity@ or @index@? If so, how? If not, why not?
 
-
+-- Because they're independent (not related by any type)
 
 
 
