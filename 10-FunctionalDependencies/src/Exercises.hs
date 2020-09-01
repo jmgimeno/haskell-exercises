@@ -186,11 +186,13 @@ instance Omnipresent' "Tom"
 -- "trick" something you can think of a practical reason for doing? Perhaps if
 -- we added a method to the class? (Very much an open question).
 
--- No idea.
+-- | We could add a method to the class that pulls the string down to the
+-- value level. I'm honestly not sure that it's ever useful, though I'm hoping
+-- someone wil tell me otherwise!
 
 -- | c. Add another similarly-omnipresent parameter to this type class.
 
-class Omnipresent'' (r :: Symbol) (s :: Symbol) | -> r, -> s 
+class Omnipresent'' (r :: Symbol) (s :: Symbol) | -> r s 
 
 
 
