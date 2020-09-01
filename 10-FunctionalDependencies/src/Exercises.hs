@@ -177,13 +177,20 @@ instance Omnipresent "Tom!"
 -- exist? Do we /need/ variables on the left-hand side of a functional
 -- dependency arrow?
 
+class Omnipresent' (r :: Symbol) | -> r
+
+instance Omnipresent' "Tom"
+-- instance Omnipresent' "Peter"
+
 -- | b. Can you think of a time you would ever want this guarantee? Is this
 -- "trick" something you can think of a practical reason for doing? Perhaps if
 -- we added a method to the class? (Very much an open question).
 
+-- No idea.
+
 -- | c. Add another similarly-omnipresent parameter to this type class.
 
-
+class Omnipresent'' (r :: Symbol) (s :: Symbol) | -> r, -> s 
 
 
 
