@@ -11,7 +11,7 @@
 module Exercises where
 
 import Data.Kind (Type)
-import GHC.TypeLits (Symbol)
+import GHC.TypeLits (Symbol, TypeError, ErrorMessage(Text))
 import GHC.Generics (Generic (..))
 import qualified GHC.Generics as G
 
@@ -211,12 +211,36 @@ data SNat (n :: Nat) where
 -- | a. Write a function (probably in a class) that takes an 'SNat' and an
 -- 'HList', and returns the value at the 'SNat''s index within the 'HList'.
 
+class Get (n :: Nat) (xs :: [Type]) (o :: Type) where
+  get :: SNat n -> HList xs -> o
+
 -- | b. Add the appropriate functional dependency.
+
+class Get' (n :: Nat) (xs :: [Type]) (o :: Type) | n xs -> o where
+  get' :: SNat n -> HList xs -> o
+
+instance Get' 'Z (x ': xs) x where
+  get' _ (HCons x _) = x
+
+instance Get' n xs y => Get' ('S n) (x ': xs) y where
+  get' (SS n) (HCons _ xs) = get' n xs
 
 -- | c. Write a custom type error!
 
+-- Note that we have to fix the `o` type so that it's determined!
+instance TypeError ('Text "Out-of-bounds index!") => Get n '[] () where
+  get _ _ = ()
+
 -- | d. Implement 'take' for the 'HList'.
 
+class Take (n :: Nat) (xs :: [Type]) (os :: [Type]) | n xs -> os where
+  take :: SNat n -> HList xs -> HList os
+
+instance Take 'Z xs '[] where
+  take _ _ = HNil
+
+instance Take n xs os => Take ('S n) (x ': xs) (x ': os) where
+  take (SS n) (HCons x xs) = HCons x (Exercises.take n xs)
 
 
 
