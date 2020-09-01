@@ -113,7 +113,9 @@ instance Add x y z => Add ('S x) y ('S z)
 -- other! Why couldn't we write all the possible functional dependencies that
 -- /should/ make sense?
 
--- It seems this contradicts my b response (I'll cheat an see the official answer)
+-- We should want to write @y z -> x@, but this isn't true: both instances
+-- would apply to any @y@/@z@ pair where @z@ is a successor, so there isn't a
+-- unique @x@ for all @y@/@z@ combinations!
 
 
 {- FOUR -}
