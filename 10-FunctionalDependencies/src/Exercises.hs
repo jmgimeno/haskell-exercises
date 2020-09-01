@@ -143,7 +143,7 @@ instance Float `IsNamed` "Kenneth"
 -- types shall have the same name". Similarly, "No type shall have two names".
 -- Is there a way to get GHC to help us uphold the law?
 
-class (x :: k) `IsNamed'` (label :: Symbol) | x -> label where
+class (x :: k) `IsNamed'` (label :: Symbol) | x -> label, label -> x where
   fromName' :: Proxy x     -> Proxy label
   fromName' _ = Proxy
 
@@ -152,13 +152,16 @@ class (x :: k) `IsNamed'` (label :: Symbol) | x -> label where
 
 -- | b. Write the identity function restricted to types named "Kenneth".
 
-id' :: (x `IsNamed'` "Kenneth") => x -> x
+id' :: x `IsNamed'` "Kenneth" => x -> x
 id' x = x
 
 -- | c. Can you think of a less-contrived reason why labelling certain types
 -- might be useful in real-world code?
 
--- To add open tags such as "verified", "authenticated", etc, etc.
+-- It might be useful, for example, if we want to produce some sort of
+-- language-independent description of data structures. If our description (for
+-- example, postgres, or some IDL) refers to "Number", we might want to link
+-- that in some way to 'Double'.
 
 
 
