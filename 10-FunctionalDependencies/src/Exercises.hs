@@ -99,16 +99,21 @@ type family Add' (x :: Nat) (y :: Nat)    :: Nat
 -- pattern-matching on the first argument. Remember that instances can have
 -- constraints, and this is how we do recursion!
 
+instance Add 'Z y y
+instance Add x y z => Add ('S x) y ('S z)
+
 -- | b. By our analogy, a type family has only "one functional dependency" -
 -- all its inputs to its one output. Can we write _more_ functional
 -- dependencies for @Add@? Aside from @x y -> z@? 
+
+-- I don't think so (because x z -> y I think it means we can invert addition)
 
 -- | c. We know with addition, @x + y = z@ implies @y + x = z@ and @z - x = y@.
 -- This should mean that any pair of these three variables should determine the
 -- other! Why couldn't we write all the possible functional dependencies that
 -- /should/ make sense?
 
-
+-- It seems this contradicts my b response (I'll cheat an see the official answer)
 
 
 {- FOUR -}
