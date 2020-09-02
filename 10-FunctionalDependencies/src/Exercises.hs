@@ -300,9 +300,14 @@ instance {-# INCOHERENT #-} Project x xs os
 -- | Write the type class required to implement this function, along with all
 -- its instances and functional dependencies.
 
+class Update (n :: Nat) (f :: Type) (xs :: [Type]) (ys :: [Type]) | n xs f -> ys where
+  update :: SNat n -> f -> HList xs -> HList ys
 
+instance Update 'Z (x -> y) (x ': xs) (y ': xs) where
+  update _ f (HCons x xs) = HCons (f x) xs
 
-
+instance {-# INCOHERENT #-} Update n (x -> y) xs ys => Update ('S n) (x -> y) (z ': xs) (z ': ys) where
+  update (SS n) f (HCons z xs) = HCons z (update n f xs)
 
 {- NINE -}
 
