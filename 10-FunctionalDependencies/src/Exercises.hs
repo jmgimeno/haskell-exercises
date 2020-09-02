@@ -293,21 +293,22 @@ instance {-# INCOHERENT #-} Project x xs os
 -- providing an index and a (possibly-type-changing) function. For example:
 --
 -- @
---   update SZ length (HCons True (HCons "Hello" HNil))
+--   update (SS SZ) length (HCons True (HCons "Hello" HNil))
 --     === HCons True (HCons 5 HNil)
 -- @
 
 -- | Write the type class required to implement this function, along with all
 -- its instances and functional dependencies.
 
-class Update (n :: Nat) (f :: Type) (xs :: [Type]) (ys :: [Type]) | n xs f -> ys where
-  update :: SNat n -> f -> HList xs -> HList ys
+class Update (i :: Nat) (s :: [Type]) (t :: [Type]) (a :: Type) (b :: Type)
+    | i s -> a, i t -> b, i s b -> t, i t a -> s where
+  update :: SNat i -> (a -> b) -> HList s -> HList t
 
-instance Update 'Z (x -> y) (x ': xs) (y ': xs) where
+instance Update 'Z (x ': xs) (y ': xs) x y where
   update _ f (HCons x xs) = HCons (f x) xs
 
-instance {-# INCOHERENT #-} Update n (x -> y) xs ys => Update ('S n) (x -> y) (z ': xs) (z ': ys) where
-  update (SS n) f (HCons z xs) = HCons z (update n f xs)
+instance Update n xs ys x y => Update ('S n) (a ': xs) (a ': ys) x y where
+  update (SS n) f (HCons x xs) = HCons x (update n f xs)
 
 {- NINE -}
 
