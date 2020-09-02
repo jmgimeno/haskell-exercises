@@ -275,14 +275,17 @@ instance {-# OVERLAPPING #-} Inject x xs
 --     === Left Bool :: Either Bool (Variant '[Int, String])
 -- @
 
-class Project (x :: Type) (xs :: [Type]) (ys :: [Type]) | x xs -> ys where
-  project :: Proxy x -> Variant xs -> Either x (Variant ys)
+class Project (x :: Type) (xs :: [Type]) (os :: [Type]) where
+  project :: Proxy x -> Variant xs -> Either x (Variant os)
 
 instance Project x (x ': xs) xs where
-  project _ (Here x) = Left x
+  project _ (Here  x)  = Left  x
+  project _ (There xs) = Right xs
 
-instance {-# OVERLAPPING #-} Project x xs ys => Project x (y ': xs) ys where 
-  project x (There xs) = project x xs
+instance {-# INCOHERENT #-} Project x xs os
+    => Project x (y ': xs) (y ': os) where
+  project _ (Here  _ ) = error "Impossible!" -- This is annoying :(
+  project p (There xs) = fmap There (project p xs)
 
 {- EIGHT -}
 
