@@ -275,9 +275,14 @@ instance {-# OVERLAPPING #-} Inject x xs
 --     === Left Bool :: Either Bool (Variant '[Int, String])
 -- @
 
+class Project (x :: Type) (xs :: [Type]) (ys :: [Type]) | x xs -> ys where
+  project :: Proxy x -> Variant xs -> Either x (Variant ys)
 
+instance Project x (x ': xs) xs where
+  project _ (Here x) = Left x
 
-
+instance {-# OVERLAPPING #-} Project x xs ys => Project x (y ': xs) ys where 
+  project x (There xs) = project x xs
 
 {- EIGHT -}
 
